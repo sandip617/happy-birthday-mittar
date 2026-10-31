@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>শুভ জন্মদিন · Birthday Wish Maker</title>
+<meta name="description" content="Make a Bangla / English birthday wish card or animation video. No login, no server.">
+<meta name="theme-color" content="#e8467c">
+<!-- If the URL carries a saved wish (?w=...), hide the builder before anything paints -->
+<script>if (/[?&]w=/.test(location.search)) document.documentElement.classList.add('share-mode');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atma:wght@500;700&family=Baloo+Da+2:wght@400;600;800&family=Galada&family=Hind+Siliguri:wght@300;400;600;700&family=Mina:wght@400;700&family=Monoton&family=Tiro+Bangla:ital@0;1&display=swap">
+
+<style>
+/* =====================================================================
+   CSS PART 1 — BASE / BUILDER UI
+   ===================================================================== */
+:root{
+  --ui-bg:#fff8f3; --ui-card:#ffffff; --ui-text:#2b2233; --ui-sub:#6d6377;
+  --ui-pri:#e8467c; --ui-pri-d:#c9306a; --ui-pri2:#ff8a5c; --ui-line:#f1e3ea;
+  --ui-soft:#fff0f5; --radius:16px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ui-bg); color:var(--ui-text);
+  font-family:'Hind Siliguri','Baloo Da 2',system-ui,sans-serif; font-size:16px; line-height:1.5;
+}
+body.lock{overflow:hidden}
+.share-mode #intro, .share-mode #app, .share-mode .jump-preview{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--ui-pri)}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.4em;
+  min-height:46px; padding:.55em 1.1em; border-radius:999px; border:1.5px solid var(--ui-line);
+  background:#fff; color:var(--ui-text); font-weight:600; cursor:pointer; text-decoration:none;
+  transition:transform .15s, background .15s, box-shadow .15s; -webkit-tap-highlight-color:transparent;
+}
+.btn:hover{background:var(--ui-soft)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--ui-pri),var(--ui-pri2));color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(232,70,124,.3)}
+.btn-primary:hover{background:linear-gradient(135deg,var(--ui-pri-d),var(--ui-pri))}
+.btn-lg{font-size:1.15rem;padding:.7em 1.6em}
+.btn-sm{min-height:38px;padding:.35em .9em;font-size:.92rem}
+.btn-wa{background:#25d366;color:#fff;border-color:transparent}
+.btn-wa:hover{background:#1ebe5a}
+.btn-fb{background:#1877f2;color:#fff;border-color:transparent}
+.btn-fb:hover{background:#0f63d1}
+
+/* ---------- language switch ---------- */
+.lang-switch{display:inline-flex;background:#fff;border:1.5px solid var(--ui-line);border-radius:999px;padding:3px}
+.lang-switch button{border:0;background:transparent;border-radius:999px;padding:.3em .85em;cursor:pointer;font-weight:600;min-height:34px}
+.lang-switch button[aria-pressed="true"]{background:var(--ui-pri);color:#fff}
+
+/* ---------- top bar & layout ---------- */
+.topbar{
+  position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:10px 16px; background:rgba(255,248,243,.92); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--ui-line);
+}
+.brand{font-family:'Galada','Baloo Da 2',cursive;font-size:1.45rem;color:var(--ui-pri);white-space:nowrap}
+.layout{max-width:1200px;margin:0 auto;padding:16px;display:grid;gap:16px}
+@media (min-width:920px){
+  .layout{grid-template-columns:minmax(0,1fr) minmax(0,470px);align-items:start}
+  .preview{position:sticky;top:72px;max-height:calc(100vh - 88px);overflow:auto}
+}
+.panel{background:var(--ui-card);border:1px solid var(--ui-line);border-radius:22px;padding:18px;box-shadow:0 4px 20px rgba(120,60,90,.06)}
+fieldset{border:0;margin:0 0 6px;padding:0 0 18px;border-bottom:1px dashed var(--ui-line)}
+fieldset:last-child{border-bottom:0;padding-bottom:0}
+legend{font-family:'Baloo Da 2',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ui-pri);padding:0;margin-bottom:8px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label,.label{font-weight:600;font-size:.95rem}
+.req{color:var(--ui-pri)}
+.grid2{display:grid;gap:0 12px}
+@media (min-width:560px){.grid2{grid-template-columns:1fr 1fr}}
+input[type=text],select,textarea{
+  width:100%; min-height:46px; padding:.6em .8em; border:1.5px solid var(--ui-line); border-radius:12px;
+  background:#fff; font-size:16px; outline:none; transition:border-color .15s, box-shadow .15s;
+}
+textarea{min-height:96px;resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus{border-color:var(--ui-pri);box-shadow:0 0 0 3px rgba(232,70,124,.15)}
+.invalid{border-color:#e03131!important;box-shadow:0 0 0 3px rgba(224,49,49,.15)!important}
+.err{color:#e03131;font-size:.88rem}
+.hint{color:var(--ui-sub);font-size:.86rem;margin:2px 0 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.space-between{justify-content:space-between}
+.tone{display:inline-block;background:var(--ui-soft);color:var(--ui-pri-d);border-radius:999px;padding:.15em .7em;font-size:.85rem;font-weight:600}
+.file-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* ---------- theme picker ---------- */
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (min-width:640px){.theme-grid{grid-template-columns:repeat(6,1fr)}}
+.theme-opt{cursor:pointer;text-align:center;font-size:.85rem;font-weight:600}
+.theme-opt input{position:absolute;opacity:0;pointer-events:none}
+.theme-opt .sw{
+  position:relative;display:grid;place-items:center;aspect-ratio:1;border-radius:14px;margin-bottom:4px;
+  border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);overflow:hidden;transition:transform .15s;
+}
+.theme-opt .sw b{font-size:1.6rem;line-height:1}
+.theme-opt .sw em{font-style:normal;font-size:.95rem;line-height:1}
+.theme-opt .sw i{position:absolute;bottom:6px;width:10px;height:10px;border-radius:50%}
+.theme-opt .sw i:nth-of-type(1){left:8px}.theme-opt .sw i:nth-of-type(2){left:22px}
+.theme-opt input:checked + .sw{border-color:var(--ui-pri);transform:scale(1.04);box-shadow:0 0 0 3px rgba(232,70,124,.2)}
+.theme-opt input:focus-visible + .sw{outline:2px solid var(--ui-pri);outline-offset:2px}
+
+/* ---------- segmented / toggle ---------- */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg label{cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:52px;padding:.4em;border:1.5px solid var(--ui-line);border-radius:14px;font-weight:600;background:#fff}
+.seg input:checked + span{border-color:var(--ui-pri);background:var(--ui-soft);color:var(--ui-pri-d)}
+.seg input:focus-visible + span{outline:2px solid var(--ui-pri);outline-offset:2px}
+.seg.small span{min-height:42px;font-size:.92rem}
+.switch{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600}
+.switch input{position:absolute;opacity:0;pointer-events:none}
+.switch .track{width:48px;height:28px;border-radius:999px;background:#e4d7de;position:relative;transition:background .2s;flex:none}
+.switch .track::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch input:checked + .track{background:var(--ui-pri)}
+.switch input:checked + .track::after{transform:translateX(20px)}
+.switch input:focus-visible + .track{outline:2px solid var(--ui-pri);outline-offset:2px}
+.photo-thumb{width:52px;height:52px;border-radius:12px;background:center/cover no-repeat #eee;border:1px solid var(--ui-line)}
+
+/* ---------- preview panel ---------- */
+.preview h2{margin:0 0 12px;font-family:'Baloo Da 2',sans-serif;font-size:1.2rem;color:var(--ui-pri)}
+.stage{display:flex;justify-content:center;align-items:center;background:repeating-conic-gradient(#faf3f6 0 25%,#fff 0 50%) 0 0/24px 24px;border-radius:18px;padding:14px}
+#cardSlot{width:100%;max-width:420px}
+#animCanvas{display:block;width:min(100%, calc(min(68vh,620px) * 9 / 16));height:auto;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);background:#000}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.actions .btn{flex:1 1 auto}
+.rec{margin-top:10px;font-size:.9rem;color:var(--ui-sub)}
+.rec .bar{height:8px;border-radius:99px;background:var(--ui-line);overflow:hidden;margin-bottom:4px}
+.rec .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ui-pri),var(--ui-pri2));transition:width .2s linear}
+.share-box{margin-top:16px;padding-top:14px;border-top:1px dashed var(--ui-line)}
+.share-box h3{margin:0 0 8px;font-size:1.05rem}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;margin-bottom:10px;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:3px;accent-color:var(--ui-pri)}
+.share-out{margin-top:10px;display:grid;gap:8px}
+.share-out input{font-size:.85rem;min-height:42px}
+.note{font-size:.82rem;color:var(--ui-sub);margin:10px 0 0}
+.warn{font-size:.84rem;color:#9a5b00;background:#fff6e0;border-radius:10px;padding:.5em .7em;margin:0}
+.jump-preview{
+  position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:30;
+  box-shadow:0 8px 24px rgba(232,70,124,.4);
+}
+@media (min-width:920px){.jump-preview{display:none!important}}
+footer{text-align:center;color:var(--ui-sub);font-size:.85rem;padding:12px 16px 90px}
+
+/* ---------- toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,30px);z-index:300;
+  background:#2b2233;color:#fff;padding:.7em 1.1em;border-radius:14px;max-width:min(92vw,460px);
+  font-size:.95rem;opacity:0;pointer-events:none;transition:.3s;text-align:center;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- DOM confetti (intro, surprise) ---------- */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:250;overflow:hidden}
+.confetti i{position:absolute;top:55%;width:10px;height:6px;border-radius:2px;animation:conf 2.4s cubic-bezier(.15,.7,.4,1) forwards}
+@keyframes conf{
+  0%{transform:translate(0,0) rotate(0);opacity:1}
+  45%{transform:translate(calc(var(--dx)*.75),var(--dy)) rotate(var(--r))}
+  100%{transform:translate(var(--dx),calc(var(--dy) + 75vh)) rotate(calc(var(--r)*2));opacity:0}
+}
+
+/* =====================================================================
+   CSS PART 2 — INTRO (shop door opening + greeting)
+   ===================================================================== */
+#intro{position:fixed;inset:0;z-index:100;overflow:hidden;perspective:1400px;
+  background:radial-gradient(circle at 50% 42%,#fff6dc 0,#ffd6e2 55%,#f7a8c4 100%);transition:opacity .7s, visibility .7s}
+#intro.leaving{opacity:0;visibility:hidden}
+.intro-sky{position:absolute;inset:0;z-index:0}
+.intro-sky .ib{position:absolute;bottom:-90px;left:var(--x);width:48px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.7) 0 7px,transparent 8px),var(--c);
+  animation:rise 9s linear var(--d) infinite}
+.intro-sky .ib::after{content:'';position:absolute;left:50%;top:100%;width:1px;height:50px;background:rgba(80,60,90,.35)}
+@keyframes rise{to{transform:translateY(calc(-100vh - 160px)) translateX(30px)}}
+.greet{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:90px 20px 30px;opacity:0}
+#intro.opened .greet{animation:fadeUp 1s .9s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.greet-badge{font-size:3rem;animation:bob 3s ease-in-out infinite}
+.greet-title{margin:.1em 0 0;font-family:'Galada','Baloo Da 2',cursive;font-weight:400;font-size:clamp(2.6rem,11vw,5rem);line-height:1.1;
+  color:#d62f62;text-shadow:0 3px 0 #fff,0 8px 24px rgba(214,47,98,.3)}
+.greet-alt{margin:.2em 0 0;font-family:'Baloo Da 2',sans-serif;font-weight:600;color:#7a3c58;letter-spacing:.02em}
+.greet-sub{margin:.6em 0 1.4em;max-width:30em;color:#5a3a4c;font-size:1.05rem}
+.awning{position:absolute;top:0;left:0;right:0;height:74px;z-index:4;display:grid;place-items:center;
+  background:linear-gradient(90deg,#e8467c 0 50%,#fff 50% 100%) 0 0/76px 100%;box-shadow:0 6px 14px rgba(0,0,0,.15);
+  transition:transform .9s .6s cubic-bezier(.6,0,.3,1)}
+.awning::after{content:'';position:absolute;left:0;right:0;bottom:-16px;height:16px;
+  background:radial-gradient(circle at 19px 0,#e8467c 0 18px,transparent 19px) 0 0/76px 16px repeat-x}
+.shop-name{background:#fff;color:#d62f62;font-family:'Galada','Baloo Da 2',cursive;font-size:1.35rem;padding:.15em .9em;border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);border:2px solid #d62f62;position:relative;z-index:1}
+#intro.opened .awning{transform:translateY(-120%)}
+.door{position:absolute;top:0;bottom:0;width:50%;z-index:3;
+  background:linear-gradient(90deg,#86452a,#a85e37 45%,#8f4c2d);border:4px solid #5b2f18;
+  transition:transform 1.7s cubic-bezier(.6,.05,.25,1);box-shadow:inset 0 0 40px rgba(0,0,0,.35)}
+.door.left{left:0;transform-origin:left center}
+.door.right{right:0;transform-origin:right center}
+#intro.opened .door.left{transform:rotateY(-104deg)}
+#intro.opened .door.right{transform:rotateY(104deg)}
+.door .pane{position:absolute;top:16%;left:14%;right:14%;height:42%;border:10px solid #6e3a1f;border-radius:16px 16px 6px 6px;
+  background:linear-gradient(135deg,rgba(255,255,255,.65),rgba(190,225,255,.3) 38%,rgba(255,255,255,.5) 55%,rgba(170,205,255,.25))}
+.door .panel-low{position:absolute;top:64%;left:14%;right:14%;height:24%;border:7px solid #6e3a1f;border-radius:8px;box-shadow:inset 0 0 18px rgba(0,0,0,.25)}
+.door .knob{position:absolute;top:56%;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6c2,#e0b032 60%,#a3790f)}
+.door.left .knob{right:8%}.door.right .knob{left:8%}
+.open-sign{position:absolute;top:31%;left:50%;transform-origin:50% -24px;transform:translateX(-50%);background:#fff;color:#d62f62;
+  border:3px solid #d62f62;font-weight:800;font-family:'Baloo Da 2',sans-serif;padding:.15em .8em;border-radius:8px;white-space:nowrap;
+  animation:swing 2.4s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:translateX(-50%) rotate(-6deg)}50%{transform:translateX(-50%) rotate(6deg)}}
+.door-hint{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;z-index:5;color:#fff;
+  font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.5);transition:opacity .4s}
+#intro.opened .door-hint{opacity:0}
+.intro-lang{position:absolute;top:calc(84px + env(safe-area-inset-top));right:12px;z-index:10}
+#intro.opened .intro-lang{top:calc(12px + env(safe-area-inset-top));transition:top .6s 1.2s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* =====================================================================
+   CSS PART 3 — THE CARD + 6 THEMES (colors, fonts, animations)
+   Base styles are always the final visible state; animations only add
+   motion, so the PNG export (which turns animations off) looks right.
+   ===================================================================== */
+.card{
+  position:relative;width:100%;aspect-ratio:4/5;border-radius:1.2em;overflow:hidden;isolation:isolate;margin:0 auto;
+  font-size:17px;color:var(--c-text);box-shadow:0 14px 40px rgba(40,20,40,.22);
+  --c-text:#222;--c-sub:#555;--c-accent:#e8467c;--c-accent2:#2f8fe0;--pill-text:#fff;
+  --f-title:'Baloo Da 2',sans-serif;--w-title:800;--s-title:normal;--f-body:'Hind Siliguri',sans-serif;--f-name:'Baloo Da 2',sans-serif;--w-name:800;
+  --msg-bg:rgba(255,255,255,.65);--shade:rgba(255,255,255,.6);
+}
+.card-bg,.card-photo-bg,.card-shade,.card-deco{position:absolute;inset:0}
+.card-bg{z-index:0}
+.card-photo-bg{z-index:1;display:none;background-size:cover;background-position:center}
+.card-shade{z-index:1;display:none;background:var(--shade)}
+.card.has-photobg .card-photo-bg,.card.has-photobg .card-shade{display:block}
+.card-deco{z-index:2;pointer-events:none;overflow:hidden}
+.card-body{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:2.6em 1.7em 2em;gap:.3em}
+.c-salute{font:600 1em/1.3 var(--f-body);color:var(--c-sub)}
+.c-title{font-family:var(--f-title);font-weight:var(--w-title);font-style:var(--s-title);font-size:2.6em;line-height:1.15;color:var(--c-accent);margin:.02em 0}
+.c-milestone{background:var(--c-accent2);color:var(--pill-text);font:600 .9em/1 var(--f-body);padding:.5em 1em .4em;border-radius:999px}
+.c-frame{display:none;width:6em;height:6em;border-radius:50%;background-size:cover;background-position:center;border:.25em solid #fff;
+  box-shadow:0 0 0 .18em var(--c-accent),0 .5em 1.2em rgba(0,0,0,.2);margin:.3em 0;flex:none}
+.card.has-frame .c-frame{display:block}
+.c-name{font-family:var(--f-name);font-weight:var(--w-name);font-size:2.1em;line-height:1.15;color:var(--c-text);overflow-wrap:anywhere}
+.c-name.is-placeholder{opacity:.4}
+.c-nick{font:italic 400 1em/1.3 var(--f-body);color:var(--c-sub)}
+.c-msg{font:400 1em/1.6 var(--f-body);color:var(--c-text);background:var(--msg-bg);padding:.7em 1em;border-radius:.8em;margin:.4em 0 .2em;
+  white-space:pre-line;max-width:100%;overflow-wrap:anywhere}
+.card.msg-long .c-msg{font-size:.88em}
+.card.msg-xlong .c-msg{font-size:.76em}
+.card.has-frame.msg-long .c-frame{width:4.6em;height:4.6em}
+.c-from{font:600 1em/1.3 var(--f-body);color:var(--c-accent2)}
+/* turn all motion off (used for PNG export) */
+.no-anim,.no-anim *{animation:none!important;transition:none!important}
+
+/* ---- THEME 1: Balloons ---- */
+.theme-balloons{--c-text:#2a2340;--c-sub:#5a5270;--c-accent:#e8467c;--c-accent2:#2f8fe0;
+  --f-title:'Baloo Da 2','Hind Siliguri',sans-serif;--w-title:800;--f-body:'Baloo Da 2','Hind Siliguri',sans-serif;--f-name:'Baloo Da 2',sans-serif;--w-name:800;
+  --msg-bg:rgba(255,255,255,.72);--shade:rgba(255,255,255,.62)}
+.theme-balloons .card-bg{background:radial-gradient(circle,rgba(255,255,255,.6) 0 2px,transparent 3px) 0 0/22px 22px,linear-gradient(160deg,#ffe3ef,#d9f1ff 60%,#fff6d6)}
+.d-bunting{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-around;padding:0 .4em}
+.d-bunting::before{content:'';position:absolute;top:.2em;left:0;right:0;height:1px;background:rgba(60,50,80,.3)}
+.d-bunting i{width:0;height:0;border-left:.75em solid transparent;border-right:.75em solid transparent;border-top:1.3em solid var(--fc);margin-top:.2em;
+  transform-origin:top center;animation:flag 2.6s ease-in-out var(--d) infinite}
+@keyframes flag{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.d-balloon{position:absolute;left:var(--x);top:var(--y);width:calc(2.4em * var(--s));height:calc(2.9em * var(--s));border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.75) 0 .3em,transparent .35em),var(--bc);animation:bob 4.5s ease-in-out var(--d) infinite}
+.d-balloon::after{content:'';position:absolute;left:50%;top:100%;width:1px;height:2.6em;background:rgba(60,50,80,.35)}
+
+/* ---- THEME 2: Cake ---- */
+.theme-cake{--c-text:#4a2a22;--c-sub:#7a5248;--c-accent:#c2416b;--c-accent2:#7b3f2a;
+  --f-title:'Galada','Baloo Da 2',cursive;--w-title:400;--f-body:'Hind Siliguri',sans-serif;--f-name:'Galada','Baloo Da 2',cursive;--w-name:400;
+  --msg-bg:rgba(255,250,245,.8);--shade:rgba(255,244,230,.66)}
+.theme-cake .card-bg{background:radial-gradient(circle,rgba(194,65,107,.12) 0 3px,transparent 4px) 0 0/30px 30px,linear-gradient(180deg,#fff4e6,#ffe6ee 60%,#fde2cf)}
+.d-drips{position:absolute;top:0;left:0;right:0;height:2.6em;
+  background:radial-gradient(circle at 50% 0,#6b3a2a 0 .95em,transparent 1em) 0 .7em/2.2em 2em repeat-x,linear-gradient(#6b3a2a,#6b3a2a) 0 0/100% .8em no-repeat}
+.d-sprinkle{position:absolute;left:var(--x);top:var(--y);width:.9em;height:.28em;border-radius:.2em;background:var(--bc);transform:rotate(var(--r));
+  animation:spin 9s linear var(--d) infinite}
+@keyframes spin{to{transform:rotate(calc(var(--r) + 360deg))}}
+.d-emoji{position:absolute;left:var(--x);top:var(--y);font-size:var(--fs,2.4em);line-height:1;animation:bob 3s ease-in-out var(--d) infinite}
+
+/* ---- THEME 3: Floral ---- */
+.theme-floral{--c-text:#3d3236;--c-sub:#6e5d64;--c-accent:#b45a7a;--c-accent2:#5f8a5a;
+  --f-title:'Tiro Bangla',serif;--w-title:400;--s-title:italic;--f-body:'Tiro Bangla',serif;--f-name:'Tiro Bangla',serif;--w-name:400;
+  --msg-bg:rgba(255,255,255,.7);--shade:rgba(253,246,240,.66)}
+.theme-floral .card-bg{background:radial-gradient(circle at 15% 20%,rgba(244,166,193,.35),transparent 40%),radial-gradient(circle at 85% 80%,rgba(201,228,197,.55),transparent 45%),linear-gradient(170deg,#fdf6f0,#f6e8ef 50%,#e8f3ea)}
+.theme-floral .d-emoji{animation:sway 4s ease-in-out var(--d) infinite}
+@keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.d-petal{position:absolute;left:var(--x);top:var(--y);width:.8em;height:1.1em;background:var(--bc);border-radius:0 100% 0 100%;opacity:.7;
+  animation:petal var(--dur) linear var(--d) infinite}
+@keyframes petal{0%{transform:translate(0,-8em) rotate(0)}100%{transform:translate(2.5em,34em) rotate(420deg)}}
+
+/* ---- THEME 4: Minimal ---- */
+.theme-minimal{--c-text:#1b1b1b;--c-sub:#6b6b6b;--c-accent:#161616;--c-accent2:#e8467c;
+  --f-title:'Hind Siliguri',sans-serif;--w-title:600;--f-body:'Hind Siliguri',sans-serif;--f-name:'Hind Siliguri',sans-serif;--w-name:700;
+  --msg-bg:transparent;--shade:rgba(251,250,247,.74)}
+.theme-minimal .card-bg{background:linear-gradient(rgba(0,0,0,.035) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(0,0,0,.035) 1px,transparent 1px) 0 0/24px 24px,#fbfaf7}
+.theme-minimal .c-title{font-size:2.3em}
+.theme-minimal .c-title::after{content:'';display:block;width:1.4em;height:.08em;background:var(--c-accent2);margin:.25em auto 0}
+.theme-minimal .c-msg{font-weight:300}
+.d-frame{position:absolute;inset:1.1em;border:1px solid rgba(0,0,0,.2);border-radius:.6em;animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{50%{inset:1.3em;border-color:rgba(232,70,124,.35)}}
+.d-dot{position:absolute;left:50%;top:1.7em;width:.5em;height:.5em;margin-left:-.25em;border-radius:50%;background:#e8467c;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.6);opacity:.5}}
+
+/* ---- THEME 5: Night sky ---- */
+.theme-night{--c-text:#f3f0ff;--c-sub:#c9c2ee;--c-accent:#ffd76a;--c-accent2:#a99cff;--pill-text:#14103a;
+  --f-title:'Atma','Baloo Da 2',cursive;--w-title:700;--f-body:'Hind Siliguri',sans-serif;--f-name:'Atma','Baloo Da 2',cursive;--w-name:700;
+  --msg-bg:rgba(18,14,52,.6);--shade:rgba(10,8,35,.55)}
+.theme-night .card-bg{background:radial-gradient(ellipse at 75% 10%,rgba(120,90,220,.45),transparent 55%),linear-gradient(180deg,#0b1030,#1c1450 60%,#2d1a4f)}
+.theme-night .c-title{text-shadow:0 0 .35em rgba(255,215,106,.55)}
+.d-star{position:absolute;left:var(--x);top:var(--y);width:var(--sz);height:var(--sz);border-radius:50%;background:#fff;box-shadow:0 0 .4em #fff;
+  animation:twinkle var(--dur) ease-in-out var(--d) infinite}
+@keyframes twinkle{50%{opacity:.2;transform:scale(.5)}}
+.d-moon{position:absolute;right:7%;top:5%;width:3.2em;height:3.2em;border-radius:50%;
+  background:radial-gradient(circle at 62% 58%,rgba(200,160,60,.35) 0 .35em,transparent .4em),radial-gradient(circle at 35% 35%,#fff8d6,#ffe08a 60%,#e8c25a);
+  box-shadow:0 0 2em rgba(255,215,106,.55)}
+.d-shoot{position:absolute;top:16%;left:-30%;width:7em;height:2px;background:linear-gradient(90deg,transparent,#fff);opacity:0;
+  animation:shoot 7s ease-in 1.5s infinite}
+@keyframes shoot{0%{transform:translate(0,0) rotate(-18deg);opacity:0}4%{opacity:1}12%{transform:translate(40em,12em) rotate(-18deg);opacity:0}100%{opacity:0}}
+
+/* ---- THEME 6: Retro ---- */
+.theme-retro{--c-text:#ffffff;--c-sub:#ffd6f0;--c-accent:#ff4fa3;--c-accent2:#3ff2ff;--pill-text:#1a0b3d;
+  --f-title:'Monoton','Mina',cursive;--w-title:400;--f-body:'Mina',sans-serif;--f-name:'Mina',sans-serif;--w-name:700;
+  --msg-bg:rgba(26,11,61,.62);--shade:rgba(26,11,61,.55)}
+.theme-retro .card-bg{background:linear-gradient(180deg,#1a0b3d 0%,#3d1263 40%,#8a1f78 70%,#8a1f78 76%,#14052b 76%)}
+.theme-retro .c-title{color:#fff;font-size:2.4em;text-shadow:0 0 .12em #ff4fa3,0 0 .35em #ff4fa3,0 0 .7em #ff4fa3;animation:neon 3s infinite}
+.theme-retro .c-name{text-shadow:0 0 .3em rgba(63,242,255,.7)}
+@keyframes neon{0%,18%,22%,60%,100%{opacity:1}20%,61%{opacity:.55}}
+.d-sun{position:absolute;left:50%;top:39%;width:12em;height:12em;margin-left:-6em;border-radius:50%;
+  background:linear-gradient(transparent 0 52%,#8a1f78 52% 56%,transparent 56% 64%,#8a1f78 64% 69%,transparent 69% 76%,#8a1f78 76% 82%,transparent 82% 88%,#8a1f78 88% 95%,transparent 95%),linear-gradient(#ffe66d,#ff3f8e);
+  box-shadow:0 0 3em rgba(255,79,163,.55)}
+.d-grid{position:absolute;left:0;right:0;bottom:0;height:24%;
+  background:linear-gradient(rgba(63,242,255,.6) 2px,transparent 2px) 0 0/100% 1.2em,linear-gradient(90deg,rgba(63,242,255,.6) 2px,transparent 2px) 0 0/2em 100%;
+  animation:gridmove 1.4s linear infinite}
+.d-grid::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#ff4fa3;box-shadow:0 0 12px #ff4fa3}
+@keyframes gridmove{to{background-position:0 1.2em,0 0}}
+
+/* =====================================================================
+   CSS PART 4 — SURPRISE OVERLAY (cake cutting / envelope)
+   ===================================================================== */
+#surprise{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  background:radial-gradient(circle at 50% 40%,var(--sp1,#fff3e6),var(--sp2,#f7a8c4));opacity:0;transition:opacity .5s;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;padding:20px}
+#surprise.in{opacity:1}
+#surprise.out{opacity:0}
+.sp-hint{margin:0;font-family:'Baloo Da 2','Hind Siliguri',sans-serif;font-weight:800;font-size:1.25rem;color:var(--sph,#7a2a4a);text-align:center;
+  background:rgba(255,255,255,.75);padding:.4em 1em;border-radius:999px;animation:bob 2s ease-in-out infinite;transition:opacity .3s}
+#surprise.blown .sp-hint,#surprise.open .sp-hint{opacity:0}
+.sp-cake,.sp-env{display:none}
+#surprise[data-style="cake"] .sp-cake{display:block}
+#surprise[data-style="envelope"] .sp-env{display:block}
+/* cake: built as two halves so it can be "cut" */
+.sp-cake{position:relative;width:260px;height:300px;transform:scale(var(--sps,1))}
+.sp-cake .half{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;transition:transform .8s cubic-bezier(.3,1.5,.5,1)}
+.sp-cake .half.l{left:0}.sp-cake .half.r{right:0}
+.sp-cake .inner{position:absolute;top:0;width:260px;height:100%}
+.sp-cake .half.l .inner{left:0}.sp-cake .half.r .inner{right:0}
+.sp-cake .candle{position:absolute;top:44px;width:14px;height:56px;border-radius:4px;background:repeating-linear-gradient(45deg,#fff 0 6px,#5ec2ff 6px 12px)}
+.sp-cake .flame{position:absolute;left:50%;top:-30px;width:16px;height:28px;margin-left:-8px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:radial-gradient(circle at 50% 70%,#fff7b0,#ffb703 45%,#ff5d1f 85%);box-shadow:0 0 16px 6px rgba(255,190,60,.55);
+  transform-origin:50% 90%;animation:flicker .14s ease-in-out infinite alternate;transition:transform .35s, opacity .35s}
+@keyframes flicker{from{transform:scale(1,1) rotate(-2deg)}to{transform:scale(.9,1.1) rotate(2deg)}}
+#surprise.blown .flame{animation:none;transform:scale(0);opacity:0}
+.sp-cake .candle::after{content:'';position:absolute;left:3px;top:-14px;width:8px;height:8px;border-radius:50%;background:rgba(140,140,140,.6);opacity:0}
+#surprise.blown .candle::after{animation:smoke 1.3s ease-out forwards}
+@keyframes smoke{0%{opacity:.8;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(3)}}
+.sp-cake .tier{position:absolute;border-radius:14px 14px 8px 8px}
+.sp-cake .tier::before{content:'';position:absolute;left:0;right:0;top:0;height:24px;border-radius:14px 14px 0 0;
+  background:radial-gradient(circle at 50% 100%,var(--frost) 0 9px,transparent 10px) 0 6px/24px 22px repeat-x,linear-gradient(var(--frost),var(--frost)) 0 0/100% 14px no-repeat}
+.sp-cake .tier.top{left:45px;width:170px;top:100px;height:72px;background:var(--cake2)}
+.sp-cake .tier.bot{left:10px;width:240px;top:172px;height:96px;background:radial-gradient(circle,rgba(255,255,255,.7) 0 3px,transparent 4px) 0 30px/26px 22px,var(--cake1)}
+.sp-cake .plate{position:absolute;left:-6px;width:272px;top:258px;height:26px;border-radius:50%;background:#efe9f3;box-shadow:0 6px 14px rgba(0,0,0,.15)}
+.sp-cake .knife{position:absolute;left:50%;top:-40px;width:18px;height:170px;margin-left:-9px;z-index:5;opacity:0;
+  background:linear-gradient(90deg,#c3ccd6,#f7f9fb 50%,#a9b3be);border-radius:3px 3px 3px 60%}
+.sp-cake .knife::before{content:'';position:absolute;left:-3px;top:-46px;width:24px;height:52px;border-radius:8px;background:#7b3f2a}
+#surprise.cut .knife{animation:knife .9s ease-in forwards}
+@keyframes knife{0%{transform:translateY(-60px);opacity:0}20%{opacity:1}70%{transform:translateY(130px);opacity:1}100%{transform:translateY(130px);opacity:0}}
+#surprise.split .half.l{transform:translateX(-28px) rotate(-5deg)}
+#surprise.split .half.r{transform:translateX(28px) rotate(5deg)}
+/* envelope */
+.sp-env{position:relative;width:300px;height:200px;transform:scale(var(--sps,1));perspective:800px}
+.sp-env .env{position:absolute;inset:0;animation:wobble 1.8s ease-in-out infinite}
+#surprise.open .env{animation:none}
+@keyframes wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.env-back{position:absolute;inset:0;border-radius:10px;background:var(--env2,#e8467c)}
+.letter{position:absolute;left:14px;right:14px;top:10px;height:180px;z-index:2;background:#fffdf8;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;color:#c2416b;
+  font-family:'Galada','Baloo Da 2',cursive;font-size:1.5rem;line-height:1.25;transition:transform .9s cubic-bezier(.2,.9,.3,1.15)}
+.letter small{font-family:'Hind Siliguri',sans-serif;font-size:.85rem;color:#7a5a66}
+.env-front{position:absolute;inset:0;z-index:3;border-radius:10px;background:var(--env1,#ff7aa2);clip-path:polygon(0 0,50% 54%,100% 0,100% 100%,0 100%)}
+.env-flap{position:absolute;left:0;right:0;top:0;height:62%;z-index:4;background:var(--env3,#d62f62);clip-path:polygon(0 0,100% 0,50% 100%);
+  transform-origin:top;transition:transform .6s ease,z-index 0s .3s}
+.seal{position:absolute;left:50%;top:56%;z-index:5;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#b8123f;color:#fff;
+  display:grid;place-items:center;font-size:1.3rem;box-shadow:0 3px 8px rgba(0,0,0,.3);transition:.3s}
+#surprise.open .seal{opacity:0;transform:scale(.3)}
+#surprise.open .env-flap{transform:rotateX(180deg);z-index:1}
+#surprise.rise .letter{transform:translateY(-62%) scale(1.06)}
+
+/* =====================================================================
+   CSS PART 5 — SHARE VIEWER (clean fullscreen output only)
+   ===================================================================== */
+#viewer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px 16px 84px;overflow:hidden}
+.viewer-stage{opacity:0;transform:scale(.94);transition:opacity .8s, transform .8s cubic-bezier(.2,.9,.3,1.2);display:flex;justify-content:center;width:100%}
+.viewer-stage.show{opacity:1;transform:none}
+.viewer-stage .card{width:min(92vw, calc((100vh - 110px) * .8));width:min(92vw, calc((100dvh - 110px) * .8))}
+.viewer-canvas{display:block;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.35);cursor:pointer;
+  width:min(94vw, calc((100vh - 110px) * 9 / 16));width:min(94vw, calc((100dvh - 110px) * 9 / 16));height:auto}
+.viewer-bar{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:10px;z-index:5}
+.viewer-bar .btn{box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.viewer-err{background:#fff;padding:24px;border-radius:18px;text-align:center;max-width:360px}
+
+@media (prefers-reduced-motion:reduce){
+  .intro-sky .ib,.d-balloon,.d-petal,.d-star,.d-grid,.d-sprinkle{animation:none!important}
+}
+</style>
+</head>
+<body class="lock">
+
+<!-- =====================================================================
+     HTML PART 1 — INTRO: shop door opens, then greeting fades in
+     ===================================================================== -->
+<section id="intro" aria-label="Intro">
+  <div class="intro-sky" aria-hidden="true">
+    <i class="ib" style="--x:8%;--c:#ff5d8f;--d:-1s"></i><i class="ib" style="--x:24%;--c:#ffb703;--d:-5s"></i>
+    <i class="ib" style="--x:40%;--c:#3a86ff;--d:-3s"></i><i class="ib" style="--x:58%;--c:#8338ec;--d:-7s"></i>
+    <i class="ib" style="--x:74%;--c:#06d6a0;--d:-2s"></i><i class="ib" style="--x:88%;--c:#fb5607;--d:-6s"></i>
+  </div>
+  <div class="greet">
+    <div class="greet-badge" aria-hidden="true">🎉</div>
+    <h1 class="greet-title" data-i18n="introTitle">শুভ জন্মদিন!</h1>
+    <p class="greet-alt" data-i18n="introAlt"></p>
+    <p class="greet-sub" data-i18n="introSub"></p>
+    <button id="startBtn" class="btn btn-primary btn-lg" type="button" data-i18n="start"></button>
+  </div>
+  <div class="awning" aria-hidden="true"><span class="shop-name" data-i18n="shopSign"></span></div>
+  <div class="door left" aria-hidden="true"><span class="pane"></span><span class="panel-low"></span><span class="knob"></span><span class="open-sign" data-i18n="openSign"></span></div>
+  <div class="door right" aria-hidden="true"><span class="pane"></span><span class="panel-low"></span><span class="knob"></span></div>
+  <p class="door-hint" data-i18n="doorHint"></p>
+  <div class="intro-lang lang-switch" role="group" aria-label="Language">
+    <button type="button" data-lang="bn">বাংলা</button><button type="button" data-lang="en">English</button>
+  </div>
+</section>
+
+<!-- =====================================================================
+     HTML PART 2 — BUILDER (form + live preview + export/share)
+     ===================================================================== -->
+<div id="app">
+  <header class="topbar">
+    <div class="brand" data-i18n="brand"></div>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" data-lang="bn">বাংলা</button><button type="button" data-lang="en">English</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <form id="form" class="panel" autocomplete="off" novalidate onsubmit="return false">
+      <!-- Step 1: details -->
+      <fieldset>
+        <legend data-i18n="s1"></legend>
+        <div class="field">
+          <label for="fName"><span data-i18n="name"></span> <span class="req">*</span></label>
+          <input type="text" id="fName" maxlength="40" required data-i18n-ph="namePH">
+          <span class="err" id="nameErr" hidden data-i18n="nameErr"></span>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="fNick" data-i18n="nick"></label><input type="text" id="fNick" maxlength="30" data-i18n-ph="nickPH"></div>
+          <div class="field"><label for="fSender" data-i18n="sender"></label><input type="text" id="fSender" maxlength="40" data-i18n-ph="senderPH"></div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="fRel" data-i18n="rel"></label>
+            <select id="fRel">
+              <option value="bon" data-i18n="r_bon"></option><option value="bhai" data-i18n="r_bhai"></option>
+              <option value="bondhu" data-i18n="r_bondhu"></option><option value="maa" data-i18n="r_maa"></option>
+              <option value="baba" data-i18n="r_baba"></option><option value="partner" data-i18n="r_partner"></option>
+              <option value="colleague" data-i18n="r_colleague"></option><option value="other" data-i18n="r_other"></option>
+            </select>
+            <span><span class="tone" id="toneHint"></span></span>
+          </div>
+          <div class="field"><label for="fAge" data-i18n="age"></label><input type="text" id="fAge" maxlength="30" data-i18n-ph="agePH"></div>
+        </div>
+      </fieldset>
+
+      <!-- Step 2: message -->
+      <fieldset>
+        <legend data-i18n="s2"></legend>
+        <div class="field">
+          <label for="fMsg" data-i18n="msg"></label>
+          <textarea id="fMsg" maxlength="300" data-i18n-ph="msgPH"></textarea>
+          <div class="row space-between">
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-primary" id="suggestBtn" data-i18n="suggest"></button>
+              <select id="sugLang" aria-label="Message language" style="width:auto;min-height:38px;padding:.3em .6em">
+                <option value="bn">বাংলা</option><option value="en">English</option>
+              </select>
+            </div>
+            <span class="hint" id="msgCount">0/300</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Step 3: theme -->
+      <fieldset>
+        <legend data-i18n="s3"></legend>
+        <div class="theme-grid" id="themeGrid"></div>
+      </fieldset>
+
+      <!-- Step 4: photo & music -->
+      <fieldset>
+        <legend data-i18n="s4"></legend>
+        <div class="field">
+          <span class="label" data-i18n="photo"></span>
+          <div class="row">
+            <span class="photo-thumb" id="photoThumb" hidden></span>
+            <label class="btn btn-sm" for="fPhoto" data-i18n="uploadPhoto"></label>
+            <input type="file" id="fPhoto" class="file-input" accept="image/*">
+            <button type="button" class="btn btn-sm" id="removePhoto" hidden data-i18n="removePhoto"></button>
+          </div>
+          <p class="hint" data-i18n="photoHint"></p>
+          <div id="photoStyleWrap" hidden>
+            <span class="label" data-i18n="photoStyle"></span>
+            <div class="seg small">
+              <label><input type="radio" name="photoStyle" value="bg" checked><span data-i18n="psBg"></span></label>
+              <label><input type="radio" name="photoStyle" value="frame"><span data-i18n="psFrame"></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="fMusic" data-i18n="music"></label>
+          <div class="row">
+            <select id="fMusic" style="flex:1 1 200px">
+              <option value="none" data-i18n="m_none"></option>
+              <option value="t1" data-i18n="m_t1"></option><option value="t2" data-i18n="m_t2"></option>
+              <option value="t3" data-i18n="m_t3"></option><option value="t4" data-i18n="m_t4"></option>
+              <option value="custom" data-i18n="m_custom" disabled></option>
+            </select>
+            <button type="button" class="btn btn-sm" id="musicToggle"></button>
+          </div>
+          <div class="row">
+            <label class="btn btn-sm" for="fAudio" data-i18n="uploadAudio"></label>
+            <input type="file" id="fAudio" class="file-input" accept="audio/*">
+            <span class="hint" id="audioName"></span>
+          </div>
+          <p class="hint" data-i18n="musicNote"></p>
+        </div>
+      </fieldset>
+
+      <!-- Step 5: output -->
+      <fieldset>
+        <legend data-i18n="s5"></legend>
+        <div class="seg" style="margin-bottom:14px">
+          <label><input type="radio" name="output" value="card" checked><span data-i18n="outCard"></span></label>
+          <label><input type="radio" name="output" value="video"><span data-i18n="outVideo"></span></label>
+        </div>
+        <label class="switch"><input type="checkbox" id="fSurprise"><span class="track"></span><span data-i18n="surprise"></span></label>
+        <p class="hint" data-i18n="surpriseHint"></p>
+        <div class="seg small" id="surpriseStyleWrap" style="margin-top:8px">
+          <label><input type="radio" name="surpriseStyle" value="cake" checked><span data-i18n="spCake"></span></label>
+          <label><input type="radio" name="surpriseStyle" value="envelope"><span data-i18n="spEnv"></span></label>
+        </div>
+      </fieldset>
+    </form>
+
+    <section class="panel preview" id="previewPanel" aria-live="polite">
+      <h2 data-i18n="preview"></h2>
+      <div class="stage">
+        <div id="cardSlot"></div>
+        <canvas id="animCanvas" width="720" height="1280" hidden aria-label="Animation preview"></canvas>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary only-card" id="pngBtn" data-i18n="dlPng"></button>
+        <button type="button" class="btn only-video" id="replayBtn" data-i18n="replay"></button>
+        <button type="button" class="btn btn-primary only-video" id="recBtn" data-i18n="record"></button>
+        <button type="button" class="btn" id="trySurprise" data-i18n="tryS"></button>
+      </div>
+      <div class="rec" id="recBox" hidden><div class="bar"><i id="recBar"></i></div><span id="recText"></span></div>
+
+      <div class="share-box">
+        <h3 data-i18n="share"></h3>
+        <label class="check" id="incPhotoWrap" hidden><input type="checkbox" id="incPhoto"><span data-i18n="incPhoto"></span></label>
+        <button type="button" class="btn btn-primary" id="makeLink" style="width:100%" data-i18n="makeLink"></button>
+        <div class="share-out" id="shareOut" hidden>
+          <input type="text" id="shareUrl" readonly aria-label="Share link">
+          <div class="row">
+            <button type="button" class="btn btn-sm" id="copyBtn" data-i18n="copy"></button>
+            <a class="btn btn-sm btn-wa" id="waBtn" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn btn-sm btn-fb" id="fbBtn" target="_blank" rel="noopener">Facebook</a>
+            <button type="button" class="btn btn-sm" id="nativeShare" hidden data-i18n="more"></button>
+            <a class="btn btn-sm" id="openLink" target="_blank" rel="noopener" data-i18n="openLink"></a>
+          </div>
+          <p class="warn" id="shareWarn" hidden></p>
+        </div>
+        <p class="note" data-i18n="shareNote"></p>
+      </div>
+    </section>
+  </main>
+  <a href="#previewPanel" class="btn btn-primary jump-preview" id="jumpPreview" data-i18n="jump"></a>
+  <footer data-i18n="footer"></footer>
+</div>
+
+<!-- =====================================================================
+     HTML PART 3 — SHARE VIEWER (shown only when the URL has ?w=...)
+     ===================================================================== -->
+<div id="viewer" hidden>
+  <div class="viewer-stage" id="viewerStage"></div>
+  <div class="viewer-bar">
+    <button type="button" class="btn btn-primary" id="vMusic" hidden></button>
+    <button type="button" class="btn" id="vReplay" hidden>↻</button>
+  </div>
+</div>
+
+<!-- =====================================================================
+     HTML PART 4 — SURPRISE OVERLAY (used by builder preview and viewer)
+     ===================================================================== -->
+<div id="surprise" hidden tabindex="0" role="button">
+  <div class="sp-cake" aria-hidden="true">
+    <div class="half l"><div class="inner"></div></div>
+    <div class="half r"><div class="inner"></div></div>
+    <div class="knife"></div>
+  </div>
+  <div class="sp-env" aria-hidden="true">
+    <div class="env">
+      <div class="env-back"></div>
+      <div class="letter"><span id="letterText"></span><small id="letterSub"></small></div>
+      <div class="env-front"></div>
+      <div class="env-flap"></div>
+      <div class="seal">❤</div>
+    </div>
+  </div>
+  <p class="sp-hint" id="spHint"></p>
+</div>
+
+<div id="toast" role="status"></div>
+<noscript><p style="padding:20px;text-align:center">Please enable JavaScript to use this birthday wish maker.</p></noscript>
+
+<script>
+/* =====================================================================
+   JS PART 1 — TEXT (Bangla + English)
+   ===================================================================== */
+const I18N = {
+  bn: {
+    brand:'শুভেচ্ছা কার্ড মেকার', shopSign:'জন্মদিনের দোকান', openSign:'খোলা · OPEN', doorHint:'দরজা খুলছে…',
+    introTitle:'শুভ জন্মদিন!', introAlt:'Shubho Janmodin · Happy Birthday',
+    introSub:'চলো, প্রিয় মানুষটির জন্য একটা মিষ্টি শুভেচ্ছা বানাই।', start:'শুরু করি →',
+    s1:'১. কার জন্মদিন?', name:'প্রাপকের নাম', namePH:'যেমন: অনন্যা', nameErr:'নামটা লিখতেই হবে',
+    nick:'ডাকনাম (ঐচ্ছিক)', nickPH:'যেমন: মিষ্টি', sender:'তোমার নাম (প্রেরক)', senderPH:'যেমন: রাহুল',
+    rel:'সম্পর্ক', r_bon:'বোন', r_bhai:'ভাই', r_bondhu:'বন্ধু', r_maa:'মা', r_baba:'বাবা', r_partner:'সঙ্গী / ভালোবাসার মানুষ', r_colleague:'সহকর্মী', r_other:'অন্যান্য',
+    age:'বয়স বা মাইলস্টোন (ঐচ্ছিক)', agePH:'যেমন: 25 বা "রজত জয়ন্তী"',
+    s2:'২. বার্তা', msg:'একটা স্মৃতি বা বিশেষ কথা (ঐচ্ছিক)', msgPH:'খালি রাখলে সম্পর্ক অনুযায়ী একটা বার্তা বসে যাবে', suggest:'✨ বার্তা সাজেস্ট করো',
+    s3:'৩. থিম', th_balloons:'বেলুন', th_cake:'কেক', th_floral:'ফুল', th_minimal:'মিনিমাল', th_night:'রাতের আকাশ', th_retro:'রেট্রো',
+    s4:'৪. ছবি ও গান', photo:'ব্যাকগ্রাউন্ড ছবি (ঐচ্ছিক)', uploadPhoto:'📷 ছবি বেছে নাও', removePhoto:'সরাও',
+    photoHint:'ছবি না দিলে থিমের নিজস্ব ব্যাকগ্রাউন্ড ব্যবহার হবে।', photoStyle:'ছবি দেখাবে', psBg:'পুরো ব্যাকগ্রাউন্ডে', psFrame:'গোল ফ্রেমে',
+    music:'গান', m_none:'কোনো গান নয়', m_t1:'কনফেটি পপ (উচ্ছল)', m_t2:'মিউজিক বক্স (মিষ্টি)', m_t3:'রেট্রো পার্টি (৮-বিট)', m_t4:'তারার রাত (শান্ত)', m_custom:'আমার আপলোড করা গান',
+    play:'▶ চালাও', pause:'⏸ থামাও', uploadAudio:'🎵 নিজের গান আপলোড',
+    musicNote:'বিল্ট-ইন গানগুলো এই পেজেই তৈরি হয় (Web Audio), তাই কপিরাইট-মুক্ত। নিজের গান দিলে তার অধিকার তোমার থাকা চাই।',
+    s5:'৫. কী বানাবে?', outCard:'🖼️ শুভেচ্ছা কার্ড', outVideo:'🎬 অ্যানিমেশন ভিডিও',
+    surprise:'🎁 সারপ্রাইজ মোড', surpriseHint:'কার্ড বা অ্যানিমেশনের আগে একটা ছোট্ট সারপ্রাইজ চলবে।', spCake:'🎂 কেক কাটা', spEnv:'💌 খাম খোলা',
+    preview:'লাইভ প্রিভিউ', dlPng:'⬇️ PNG ডাউনলোড', replay:'▶️ আবার চালাও', record:'⏺️ ভিডিও রেকর্ড ও ডাউনলোড', tryS:'🎁 সারপ্রাইজ দেখো',
+    share:'শেয়ার করো', incPhoto:'লিংকে ছবিও রাখো (লিংক অনেক লম্বা হবে)', makeLink:'🔗 শেয়ার লিংক বানাও',
+    copy:'📋 কপি', copied:'লিংক কপি হয়েছে!', more:'আরও…', openLink:'👀 খুলে দেখো',
+    shareNote:'লিংকের মধ্যেই সব তথ্য থাকে, কোনো সার্ভার নেই। অন্যদের পাঠাতে এই ফাইলটা কোনো ওয়েবসাইটে (যেমন GitHub Pages বা Netlify) রাখো।',
+    waText:'🎂 তোমার জন্য একটা জন্মদিনের সারপ্রাইজ!', jump:'👁 প্রিভিউ', footer:'ভালোবাসা দিয়ে বানানো · কোনো লগইন নেই, কোনো সার্ভার নেই',
+    cardTitle:'শুভ জন্মদিন', nameFallback:'প্রিয় মানুষ', from:'ভালোবাসায়, {s}', fromColleague:'শুভেচ্ছান্তে, {s}',
+    greetSub:'আজ তোমার দিন', photoCap:'মুহূর্তগুলো চিরকাল থাকুক', cakeCap:'একটা কেক, শুধু তোমার জন্য!', forYou:'তোমার জন্য কিছু কথা',
+    spCanvas:'একটা সারপ্রাইজ আছে…', whoosh:'ফুঁ! 🎉',
+    tapCake:'ট্যাপ করে মোমবাতি নেভাও আর কেক কাটো!', tapEnv:'ট্যাপ করে খামটা খোলো!', letterFor:'তোমার জন্য একটা চিঠি',
+    playMusic:'🎵 গান চালাও', pauseMusic:'⏸ গান থামাও',
+    needName:'আগে প্রাপকের নাম লেখো।', pickTrack:'আগে একটা গান বেছে নাও।', pngWorking:'ছবি তৈরি হচ্ছে…', pngDone:'PNG ডাউনলোড হয়েছে!',
+    pngFail:'ছবি বানানো গেল না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করো।',
+    recUnsupported:'এই ব্রাউজারে ভিডিও রেকর্ড করা যায় না। Chrome, Edge বা Firefox চেষ্টা করো।',
+    recording:'রেকর্ড হচ্ছে… {p}% (পেজটা খোলা রাখো)', recDone:'ভিডিও ডাউনলোড হয়েছে! ({f})', recFail:'রেকর্ডিং ব্যর্থ হলো।',
+    customWarn:'নিজের আপলোড করা গান লিংকে যায় না, তাই লিংকে "কনফেটি পপ" বাজবে।',
+    fileWarn:'এখন পেজটা কম্পিউটার থেকে (file://) খোলা, তাই এই লিংক শুধু এই কম্পিউটারেই কাজ করবে। অন্যকে পাঠাতে ফাইলটা অনলাইনে রাখো।',
+    longWarn:'ছবিসহ লিংকটা খুব লম্বা, কিছু অ্যাপ কেটে দিতে পারে। সমস্যা হলে ছবি ছাড়া লিংক বানাও।',
+    viewerErr:'দুঃখিত, লিংকটা ঠিকমতো খোলা গেল না।', photoFail:'ছবিটা খোলা গেল না।', audioFail:'এই অডিও ফাইলটা চালানো যাচ্ছে না।'
+  },
+  en: {
+    brand:'Birthday Wish Maker', shopSign:'The Birthday Shop', openSign:'OPEN · খোলা', doorHint:'Opening the door…',
+    introTitle:'Shubho Janmodin!', introAlt:'শুভ জন্মদিন · Happy Birthday',
+    introSub:"Let's make a sweet birthday wish for someone you love.", start:"Let's begin →",
+    s1:'1. Whose birthday?', name:"Recipient's name", namePH:'e.g. Ananya', nameErr:'Please enter a name',
+    nick:'Nickname (optional)', nickPH:'e.g. Mishti', sender:'Your name (sender)', senderPH:'e.g. Rahul',
+    rel:'Relationship', r_bon:'Sister (Bon)', r_bhai:'Brother (Bhai)', r_bondhu:'Friend (Bondhu)', r_maa:'Mother (Maa)', r_baba:'Father (Baba)', r_partner:'Partner', r_colleague:'Colleague', r_other:'Other',
+    age:'Age or milestone (optional)', agePH:'e.g. 25 or "Silver jubilee"',
+    s2:'2. Message', msg:'A memory or special line (optional)', msgPH:'Leave blank to use a message that fits the relationship', suggest:'✨ Suggest a message',
+    s3:'3. Theme', th_balloons:'Balloons', th_cake:'Cake', th_floral:'Floral', th_minimal:'Minimal', th_night:'Night sky', th_retro:'Retro',
+    s4:'4. Photo & music', photo:'Background photo (optional)', uploadPhoto:'📷 Choose photo', removePhoto:'Remove',
+    photoHint:"No photo? The theme's built-in background is used.", photoStyle:'Show photo as', psBg:'Full background', psFrame:'Round frame',
+    music:'Music', m_none:'No music', m_t1:'Confetti Pop (upbeat)', m_t2:'Music Box (sweet)', m_t3:'Retro Party (8-bit)', m_t4:'Starry Night (calm)', m_custom:'My uploaded audio',
+    play:'▶ Play', pause:'⏸ Pause', uploadAudio:'🎵 Upload your own audio',
+    musicNote:'Built-in tracks are generated live in your browser (Web Audio), so they are royalty-free. Only upload audio you have the right to use.',
+    s5:'5. What to create?', outCard:'🖼️ Wish card', outVideo:'🎬 Animation video',
+    surprise:'🎁 Surprise mode', surpriseHint:'A little surprise plays before the card or animation.', spCake:'🎂 Cake cutting', spEnv:'💌 Envelope',
+    preview:'Live preview', dlPng:'⬇️ Download PNG', replay:'▶️ Replay', record:'⏺️ Record & download video', tryS:'🎁 Preview surprise',
+    share:'Share', incPhoto:'Include the photo in the link (makes the link much longer)', makeLink:'🔗 Create share link',
+    copy:'📋 Copy', copied:'Link copied!', more:'More…', openLink:'👀 Open',
+    shareNote:'All the data lives inside the link, with no server. To send it to others, put this file on a website (e.g. GitHub Pages or Netlify).',
+    waText:'🎂 A birthday surprise for you!', jump:'👁 Preview', footer:'Made with love · no login, no server',
+    cardTitle:'Happy Birthday', nameFallback:'Someone special', from:'With love, {s}', fromColleague:'Best wishes, {s}',
+    greetSub:"It's your day", photoCap:'Moments to keep forever', cakeCap:'A cake, just for you!', forYou:'A few words for you',
+    spCanvas:'A surprise is coming…', whoosh:'Whoosh! 🎉',
+    tapCake:'Tap to blow the candles & cut the cake!', tapEnv:'Tap to open your envelope!', letterFor:'A letter for you',
+    playMusic:'🎵 Play music', pauseMusic:'⏸ Pause music',
+    needName:"Please enter the recipient's name first.", pickTrack:'Pick a track first.', pngWorking:'Creating image…', pngDone:'PNG downloaded!',
+    pngFail:'Could not create the image. Check your internet connection and try again.',
+    recUnsupported:"This browser can't record video. Try Chrome, Edge or Firefox.",
+    recording:'Recording… {p}% (keep this page open)', recDone:'Video downloaded! ({f})', recFail:'Recording failed.',
+    customWarn:'Your uploaded audio cannot travel in a link, so the link will play "Confetti Pop".',
+    fileWarn:'This page is opened from your computer (file://), so this link only works on this computer. Host the file online to share it.',
+    longWarn:'The link with the photo is very long and some apps may cut it. If it breaks, create the link without the photo.',
+    viewerErr:'Sorry, this link could not be opened.', photoFail:'Could not open that image.', audioFail:"This audio file can't be played."
+  }
+};
+
+/* Messages per relationship. {name} is replaced by nickname or name. */
+const MESSAGES = {
+  bn: {
+    bon:['{name}, তুমি শুধু আমার বোন নও, আমার সবচেয়ে কাছের বন্ধু। তোমার হাসি যেন কখনো না থামে। শুভ জন্মদিন!',
+         'ঝগড়া, খুনসুটি আর অনেক ভালোবাসা — সব মিলিয়েই তুমি। ভালো থেকো সবসময়, মিষ্টি বোন {name}!',
+         'তোমার জীবনের প্রতিটা দিন হোক রঙিন আর আনন্দে ভরা। অনেক অনেক ভালোবাসা, {name}!'],
+    bhai:['{name}, ছোটবেলার সব দুষ্টুমির সঙ্গী তুমি। তোমার স্বপ্নগুলো সত্যি হোক — শুভ জন্মদিন, ভাই!',
+          'ভাই, তুমি আমার ভরসা আর শক্তি। নতুন বছরটা হোক সাফল্যে ভরা!',
+          'রাগ করি, ঝগড়া করি, কিন্তু তোমাকে ছাড়া চলে না। জন্মদিনে অনেক শুভেচ্ছা, {name}!'],
+    bondhu:['{name}, বন্ধু হিসেবে তোমাকে পাওয়া আমার ভাগ্য। চল, আজ জমিয়ে আড্ডা আর কেক হোক!',
+            'আরও একটা বছর পাগলামি, হাসি আর স্মৃতির জন্য তৈরি তো? শুভ জন্মদিন, বন্ধু!',
+            'তোমার মতো বন্ধু থাকলে জীবনটা সত্যিই সুন্দর। ভালো থেকো সবসময়, {name}!'],
+    maa:['মা, তোমার ভালোবাসাই আমার পৃথিবী। তুমি ভালো থেকো, সুস্থ থেকো — শুভ জন্মদিন!',
+         'তোমার হাসিমুখটাই আমার সবচেয়ে বড় আশীর্বাদ। অনেক অনেক ভালোবাসি তোমায়, মা।'],
+    baba:['বাবা, তুমি আমার প্রথম নায়ক। তোমার জন্মদিনে রইল অনেক শ্রদ্ধা আর ভালোবাসা।',
+          'তোমার শেখানো প্রতিটা কথা আজও পথ দেখায়। সুস্থ থেকো, ভালো থেকো, বাবা!'],
+    partner:['{name}, তুমি আমার প্রতিটা দিনের সবচেয়ে সুন্দর কারণ। শুভ জন্মদিন, ভালোবাসা!',
+             'তোমার সঙ্গে কাটানো প্রতিটা মুহূর্তই আমার কাছে উৎসব। আজকের দিনটা শুধু তোমার, {name}।'],
+    colleague:['শুভ জন্মদিন, {name}! নতুন বছরটা হোক সাফল্য, সুস্বাস্থ্য আর আনন্দে ভরা।',
+               'আপনার সঙ্গে কাজ করা সত্যিই আনন্দের। জন্মদিনের আন্তরিক শুভেচ্ছা রইল!'],
+    other:['শুভ জন্মদিন, {name}! তোমার জীবন ভরে উঠুক হাসি, ভালোবাসা আর আলোয়।',
+           'আজকের দিনটা হোক তোমার মতোই বিশেষ। অনেক শুভেচ্ছা রইল, {name}!']
+  },
+  en: {
+    bon:["{name}, you're not just my sister, you're my best friend. May your smile never fade. Happy birthday!",
+         "All the fights, the teasing and so much love — that's us. Stay happy always, sweet sister {name}!",
+         'May every day of your life be colourful and full of joy. Lots of love, {name}!'],
+    bhai:['{name}, my partner in every childhood mischief — may all your dreams come true. Happy birthday, bhai!',
+          "Brother, you're my strength and my safe place. Here's to a year full of wins!",
+          "We fight, we argue, but life's no fun without you. Happy birthday, {name}!"],
+    bondhu:["{name}, having you as a friend is pure luck. Let's celebrate with cake and endless adda!",
+            'Ready for another year of madness, laughter and memories? Happy birthday, friend!',
+            'Life is truly beautiful with a friend like you. Stay awesome, {name}!'],
+    maa:['Maa, your love is my whole world. Stay healthy, stay happy — happy birthday!',
+         'Your smile is my biggest blessing. I love you so much, Maa.'],
+    baba:['Baba, you were my first hero. Wishing you a birthday full of love and respect.',
+          'Everything you taught me still lights my way. Stay well, stay happy, Baba!'],
+    partner:["{name}, you're the most beautiful reason for every one of my days. Happy birthday, my love!",
+             'Every moment with you feels like a celebration. Today is all yours, {name}.'],
+    colleague:['Happy birthday, {name}! Wishing you a year of success, good health and happiness.',
+               "It's a real pleasure working with you. Warmest birthday wishes!"],
+    other:['Happy birthday, {name}! May your life overflow with laughter, love and light.',
+           'May today be as special as you are. Best wishes, {name}!']
+  }
+};
+const SALUTE = {
+  bn:{bon:'আমার মিষ্টি বোন',bhai:'প্রিয় ভাই',bondhu:'প্রিয় বন্ধু',maa:'আমার প্রিয় মা',baba:'আমার প্রিয় বাবা',partner:'আমার ভালোবাসা',colleague:'প্রিয় সহকর্মী',other:'প্রিয়'},
+  en:{bon:'To my sweet sister',bhai:'Dear brother',bondhu:'Dear friend',maa:'To my dearest Maa',baba:'To my dearest Baba',partner:'To my love',colleague:'Dear colleague',other:'Dear'}
+};
+const TONE = {
+  bn:{bon:'সুর: খুনসুটি ভরা আদর',bhai:'সুর: বন্ধুসুলভ আর গর্বের',bondhu:'সুর: মজার আর প্রাণবন্ত',maa:'সুর: গভীর ভালোবাসা আর কৃতজ্ঞতা',baba:'সুর: শ্রদ্ধা আর ভালোবাসা',partner:'সুর: রোমান্টিক আর আন্তরিক',colleague:'সুর: ভদ্র আর আন্তরিক',other:'সুর: উষ্ণ আর সহজ'},
+  en:{bon:'Tone: playful & affectionate',bhai:'Tone: buddy-like & proud',bondhu:'Tone: fun & lively',maa:'Tone: deep love & gratitude',baba:'Tone: respect & love',partner:'Tone: romantic & heartfelt',colleague:'Tone: polite & warm',other:'Tone: warm & simple'}
+};
+
+/* =====================================================================
+   JS PART 2 — THEME PALETTES (used by the canvas animation; the card
+   uses the matching CSS theme classes above)
+   ===================================================================== */
+const THEMES = {
+  balloons:{emoji:'🎈',bg:['#ffe3ef','#d9f1ff','#fff6d6'],accent:'#e8467c',accent2:'#2f8fe0',text:'#2a2340',sub:'#5a5270',pillText:'#fff',
+    panel:'rgba(255,255,255,.82)',shade:'rgba(255,255,255,.6)',glow:null,
+    fTitle:"'Baloo Da 2','Hind Siliguri',sans-serif",wTitle:800,sTitle:'normal',fBody:"'Baloo Da 2','Hind Siliguri',sans-serif",fName:"'Baloo Da 2',sans-serif",wName:800,
+    colors:['#ff5d8f','#ffb703','#3a86ff','#8338ec','#06d6a0','#fb5607'],cake:['#ffc2d4','#ffe8a3','#ffffff']},
+  cake:{emoji:'🎂',bg:['#fff4e6','#ffe6ee','#fde2cf'],accent:'#c2416b',accent2:'#7b3f2a',text:'#4a2a22',sub:'#7a5248',pillText:'#fff',
+    panel:'rgba(255,250,245,.88)',shade:'rgba(255,244,230,.62)',glow:null,
+    fTitle:"'Galada','Baloo Da 2',cursive",wTitle:400,sTitle:'normal',fBody:"'Hind Siliguri',sans-serif",fName:"'Galada','Baloo Da 2',cursive",wName:400,
+    colors:['#ff7aa2','#ffd166','#7bdff2','#b388eb','#95d5b2','#ff9f68'],cake:['#8b4a33','#f7a8c4','#fff3e6']},
+  floral:{emoji:'🌸',bg:['#fdf6f0','#f6e8ef','#e8f3ea'],accent:'#b45a7a',accent2:'#5f8a5a',text:'#3d3236',sub:'#6e5d64',pillText:'#fff',
+    panel:'rgba(255,255,255,.82)',shade:'rgba(253,246,240,.62)',glow:null,
+    fTitle:"'Tiro Bangla',serif",wTitle:400,sTitle:'italic',fBody:"'Tiro Bangla',serif",fName:"'Tiro Bangla',serif",wName:400,
+    colors:['#f4a6c1','#f9c8d8','#e88aa8','#ffd6e0','#c9e4c5','#f7b267'],cake:['#f9d5e5','#c9e4c5','#ffffff']},
+  minimal:{emoji:'◯',bg:['#fbfaf7','#f2f0eb'],accent:'#161616',accent2:'#e8467c',text:'#1b1b1b',sub:'#6b6b6b',pillText:'#fff',
+    panel:'rgba(255,255,255,.92)',shade:'rgba(251,250,247,.72)',glow:null,
+    fTitle:"'Hind Siliguri',sans-serif",wTitle:600,sTitle:'normal',fBody:"'Hind Siliguri',sans-serif",fName:"'Hind Siliguri',sans-serif",wName:700,
+    colors:['#161616','#e8467c','#bdbdbd','#f2b6c8'],cake:['#ffffff','#f2f2f2','#e8467c']},
+  night:{emoji:'🌙',bg:['#0b1030','#1c1450','#2d1a4f'],accent:'#ffd76a',accent2:'#a99cff',text:'#f3f0ff',sub:'#c9c2ee',pillText:'#14103a',
+    panel:'rgba(18,14,52,.74)',shade:'rgba(10,8,35,.55)',glow:'rgba(255,215,106,.6)',
+    fTitle:"'Atma','Baloo Da 2',cursive",wTitle:700,sTitle:'normal',fBody:"'Hind Siliguri',sans-serif",fName:"'Atma','Baloo Da 2',cursive",wName:700,
+    colors:['#ffd76a','#a99cff','#7ad7ff','#ff9ad5','#ffffff'],cake:['#6c5ce7','#a99cff','#ffd76a']},
+  retro:{emoji:'📼',bg:['#1a0b3d','#4a136b','#ff3f8e'],accent:'#ff4fa3',accent2:'#3ff2ff',text:'#ffffff',sub:'#ffd6f0',pillText:'#1a0b3d',
+    panel:'rgba(26,11,61,.76)',shade:'rgba(26,11,61,.55)',glow:'#ff4fa3',
+    fTitle:"'Monoton','Mina',cursive",wTitle:400,sTitle:'normal',fBody:"'Mina',sans-serif",fName:"'Mina',sans-serif",wName:700,
+    colors:['#ff4fa3','#3ff2ff','#ffe66d','#9d4edd','#ff8c42'],cake:['#ff4fa3','#3ff2ff','#ffe66d']}
+};
+const THEME_KEYS = Object.keys(THEMES);
+const RELS = ['bon','bhai','bondhu','maa','baba','partner','colleague','other'];
+const TRACK_KEYS = ['none','t1','t2','t3','t4','custom'];
+
+/* =====================================================================
+   JS PART 3 — STATE, HELPERS
+   ===================================================================== */
+const state = {
+  lang:'bn', name:'', nick:'', sender:'', rel:'bondhu', age:'', msg:'', sugLang:'bn',
+  theme:'balloons', photoStyle:'bg', music:'t1', output:'card', surprise:false, surpriseStyle:'cake'
+};
+let photoData = null;   // full photo (data URL) for card + video
+let photoSmall = null;  // small photo (base64url) for the share link
+let photoImg = null;    // Image object for canvas drawing
+let player = null;      // builder animation player
+let recording = false;
+
+const $ = (q, r = document) => r.querySelector(q);
+const $$ = (q, r = document) => [...r.querySelectorAll(q)];
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const tt = (key, lang = state.lang) => (I18N[lang] && I18N[lang][key]) ?? I18N.bn[key] ?? key;
+const bnNum = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+
+function toast(msg, ms = 2600) {
+  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), ms);
+}
+function download(blob, filename) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+}
+function fileSafe(s) { return (s || 'wish').trim().replace(/[\\/:*?"<>|\s]+/g, '-').slice(0, 40) || 'wish'; }
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+/* deterministic 0..1 "random" so every frame of the animation can be drawn at any time */
+function rnd(i, k) { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); }
+
+/* UTF-8 safe base64url (for the share link) */
+function b64urlEncode(str) {
+  const bytes = new TextEncoder().encode(str); let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlToB64(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return s; }
+function b64urlDecode(s) { const bin = atob(b64urlToB64(s)); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
+
+/* Text helpers shared by card + animation */
+function displayName(s) { return (s.nick || '').trim() || (s.name || '').trim() || tt('nameFallback', s.lang); }
+function fillName(text, s) { return text.replace(/\{name\}/g, displayName(s)); }
+function finalMessage(s) {
+  const m = (s.msg || '').trim();
+  return m || fillName(MESSAGES[s.lang][s.rel][0], s);
+}
+function fromLine(s) {
+  const snd = (s.sender || '').trim(); if (!snd) return '';
+  return tt(s.rel === 'colleague' ? 'fromColleague' : 'from', s.lang).replace('{s}', snd);
+}
+/* "25" -> "২৫তম জন্মদিন" / "25th Birthday"; any other text is shown as typed */
+function milestone(s) {
+  const a = (s.age || '').trim(); if (!a) return '';
+  if (!/^\d{1,3}$/.test(a)) return a;
+  const n = +a;
+  if (s.lang === 'bn') {
+    const suf = n === 1 ? 'ম' : (n === 2 || n === 3) ? 'য়' : n === 4 ? 'র্থ' : n === 6 ? 'ষ্ঠ' : (n >= 5 && n <= 10) ? 'ম' : 'তম';
+    return bnNum(n) + suf + ' জন্মদিন';
+  }
+  const sfx = (n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({1:'st',2:'nd',3:'rd'}[n % 10] || 'th');
+  return n + sfx + ' Birthday';
+}
+
+/* Load a theme's web fonts so canvas text uses them too */
+const loadedFonts = new Set();
+function loadThemeFonts(theme) {
+  if (loadedFonts.has(theme) || !document.fonts) return Promise.resolve();
+  loadedFonts.add(theme);
+  const p = THEMES[theme], sample = 'শুভ জন্মদিন Happy Birthday';
+  return Promise.all([`${p.sTitle} ${p.wTitle} 40px ${p.fTitle}`, `400 40px ${p.fBody}`, `600 40px ${p.fBody}`, `${p.wName} 40px ${p.fName}`]
+    .map(f => document.fonts.load(f, sample).catch(() => {})));
+}
+
+/* Persist builder inputs (not the photo) so a refresh keeps the work */
+function saveState() {
+  clearTimeout(saveState._t);
+  saveState._t = setTimeout(() => { try { localStorage.setItem('bdayWish', JSON.stringify(state)); } catch (e) {} }, 300);
+}
+function restoreState() {
+  try {
+    const o = JSON.parse(localStorage.getItem('bdayWish') || 'null'); if (!o) return;
+    Object.keys(state).forEach(k => { if (typeof o[k] === typeof state[k]) state[k] = o[k]; });
+    if (!THEMES[state.theme]) state.theme = 'balloons';
+    if (!RELS.includes(state.rel)) state.rel = 'bondhu';
+    if (state.music === 'custom') state.music = 't1'; // the uploaded file is not saved
+  } catch (e) {}
+}
+
+/* =====================================================================
+   JS PART 4 — LANGUAGE
+   ===================================================================== */
+function applyLang() {
+  document.documentElement.lang = state.lang;
+  $$('[data-i18n]').forEach(el => { el.textContent = tt(el.dataset.i18n); });
+  $$('[data-i18n-ph]').forEach(el => { el.placeholder = tt(el.dataset.i18nPh); });
+  $$('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === state.lang));
+  updateMusicButtons();
+  render();
+}
+function setLang(l) {
+  state.lang = l;
+  state.sugLang = l; const sl = $('#sugLang'); if (sl) sl.value = l;
+  applyLang();
+}
+
+/* =====================================================================
+   JS PART 5 — THE CARD (DOM) — used in the builder and the share view
+   ===================================================================== */
+function createCard(id) {
+  const el = document.createElement('div');
+  el.className = 'card'; if (id) el.id = id;
+  el.innerHTML = '<div class="card-bg"></div><div class="card-photo-bg"></div><div class="card-shade"></div><div class="card-deco" aria-hidden="true"></div>' +
+    '<div class="card-body"><div class="c-salute"></div><div class="c-title"></div><div class="c-milestone"></div><div class="c-frame"></div>' +
+    '<div class="c-name"></div><div class="c-nick"></div><p class="c-msg"></p><div class="c-from"></div></div>';
+  // All card sizes are in em, so scaling the font scales the whole card.
+  const fit = () => { if (el.clientWidth) el.style.fontSize = (el.clientWidth / 24) + 'px'; };
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(el); else window.addEventListener('resize', fit);
+  requestAnimationFrame(fit);
+  return el;
+}
+
+/* Decorations for each theme (seeded, so the PNG matches the preview) */
+function buildDeco(theme) {
+  const R = mulberry32(7), P = THEMES[theme], C = P.colors; let h = '';
+  const f = n => n.toFixed(2);
+  switch (theme) {
+    case 'balloons': {
+      h += '<div class="d-bunting">' + Array.from({length: 9}, (_, i) => `<i style="--fc:${C[i % C.length]};--d:${f(-i * .3)}s"></i>`).join('') + '</div>';
+      [[3,16],[86,11],[5,50],[87,44],[2,78],[85,76]].forEach(([x, y], i) => {
+        h += `<i class="d-balloon" style="--x:${x}%;--y:${y}%;--bc:${C[i % C.length]};--s:${f(.75 + R() * .45)};--d:${f(-R() * 4)}s"></i>`;
+      });
+      break;
+    }
+    case 'cake': {
+      h += '<div class="d-drips"></div>';
+      for (let i = 0; i < 22; i++) {
+        const side = i % 2 ? 2 + R() * 12 : 86 + R() * 10;
+        h += `<i class="d-sprinkle" style="--x:${f(side)}%;--y:${f(12 + R() * 80)}%;--bc:${C[i % C.length]};--r:${Math.round(R() * 180)}deg;--d:${f(-R() * 9)}s"></i>`;
+      }
+      h += `<span class="d-emoji" style="--x:3%;--y:85%;--d:0s">🧁</span><span class="d-emoji" style="--x:83%;--y:85%;--d:-1.4s">🎂</span>`;
+      break;
+    }
+    case 'floral': {
+      [['🌸','-3%','-2%'],['🌺','82%','-1%'],['🌼','-2%','86%'],['🌷','84%','85%']].forEach(([e, x, y], i) => {
+        h += `<span class="d-emoji" style="--x:${x};--y:${y};--fs:3.2em;--d:${f(-i * .8)}s">${e}</span>`;
+      });
+      for (let i = 0; i < 12; i++) {
+        h += `<i class="d-petal" style="--x:${f(R() * 92)}%;--y:${f(R() * 90)}%;--bc:${C[i % 4]};--dur:${f(7 + R() * 6)}s;--d:${f(-R() * 12)}s"></i>`;
+      }
+      break;
+    }
+    case 'minimal':
+      h += '<div class="d-frame"></div><div class="d-dot"></div>';
+      break;
+    case 'night': {
+      for (let i = 0; i < 32; i++) {
+        h += `<i class="d-star" style="--x:${f(R() * 98)}%;--y:${f(R() * 96)}%;--sz:${f(.12 + R() * .22)}em;--dur:${f(2 + R() * 3)}s;--d:${f(-R() * 4)}s"></i>`;
+      }
+      h += '<div class="d-moon"></div><i class="d-shoot"></i>';
+      break;
+    }
+    case 'retro': {
+      for (let i = 0; i < 14; i++) {
+        h += `<i class="d-star" style="--x:${f(R() * 98)}%;--y:${f(R() * 36)}%;--sz:${f(.1 + R() * .15)}em;--dur:${f(2 + R() * 3)}s;--d:${f(-R() * 4)}s"></i>`;
+      }
+      h += '<div class="d-sun"></div><div class="d-grid"></div>';
+      break;
+    }
+  }
+  return h;
+}
+
+function renderCard(el, s, photo) {
+  const theme = THEMES[s.theme] ? s.theme : 'balloons';
+  const msg = finalMessage(s);
+  const photoMode = photo ? (s.photoStyle === 'frame' ? ' has-frame' : ' has-photobg') : '';
+  const lenCls = msg.length > 220 ? ' msg-xlong' : msg.length > 140 ? ' msg-long' : '';
+  el.className = `card theme-${theme}${photoMode}${lenCls}`;
+  const q = sel => el.querySelector(sel);
+  const url = photo ? `url("${photo}")` : 'none';
+  q('.card-photo-bg').style.backgroundImage = photo && s.photoStyle !== 'frame' ? url : 'none';
+  q('.c-frame').style.backgroundImage = photo && s.photoStyle === 'frame' ? url : 'none';
+  q('.c-salute').textContent = SALUTE[s.lang][s.rel];
+  q('.c-title').textContent = tt('cardTitle', s.lang);
+  const ms = milestone(s); q('.c-milestone').textContent = ms; q('.c-milestone').hidden = !ms;
+  const nm = (s.name || '').trim();
+  q('.c-name').textContent = nm || tt('nameFallback', s.lang);
+  q('.c-name').classList.toggle('is-placeholder', !nm);
+  const nick = (s.nick || '').trim();
+  q('.c-nick').textContent = nick ? `“${nick}”` : ''; q('.c-nick').hidden = !nick;
+  q('.c-msg').textContent = msg;
+  const fr = fromLine(s); q('.c-from').textContent = fr; q('.c-from').hidden = !fr;
+  if (el.dataset.deco !== theme) { q('.card-deco').innerHTML = buildDeco(theme); el.dataset.deco = theme; }
+}
+
+/* =====================================================================
+   JS PART 6 — ANIMATION VIDEO (canvas, 720×1280, ~15–20 s)
+   Every frame is drawn from the time value alone, so it can loop,
+   update live while typing, and be recorded.
+   ===================================================================== */
+const W = 720, H = 1280;
+const ease = {
+  out: t => 1 - Math.pow(1 - t, 3),
+  back: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+};
+
+function buildTimeline(s, skipSurprise) {
+  const words = finalMessage(s).split(/\s+/).length;
+  const list = [];
+  if (s.surprise && !skipSurprise) list.push(['surprise', 3.2]);
+  list.push(['greet', 3], ['name', 3.2], ['photo', 3.4], ['msg', clamp(3 + words * 0.12, 3.6, 5.5)], ['card', 3.8]);
+  let at = 0;
+  const scenes = list.map(([id, dur]) => { const o = {id, start: at, dur}; at += dur; return o; });
+  return {scenes, total: at};
+}
+
+/* --- small drawing helpers --- */
+function rr(c, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function setFont(c, o, size) { c.font = `${o.style || 'normal'} ${o.weight || 400} ${size}px ${o.font}`; }
+function txt(c, str, x, y, o) {
+  let size = o.size; setFont(c, o, size);
+  if (o.maxW) while (size > 18 && c.measureText(str).width > o.maxW) { size -= 3; setFont(c, o, size); }
+  c.textAlign = o.align || 'center'; c.textBaseline = 'middle';
+  if (o.glow) { c.shadowColor = o.glow; c.shadowBlur = o.blur || 26; }
+  else if (o.shadow) { c.shadowColor = o.shadow; c.shadowBlur = 10; c.shadowOffsetY = 3; }
+  c.fillStyle = o.color; c.fillText(str, x, y);
+  c.shadowColor = 'transparent'; c.shadowBlur = 0; c.shadowOffsetY = 0;
+  return size;
+}
+function wrapLines(c, text, maxW) {
+  const out = [];
+  String(text).split(/\n+/).forEach(para => {
+    const words = para.trim().split(/\s+/).filter(Boolean); let line = [];
+    words.forEach(w => {
+      if (line.length && c.measureText([...line, w].join(' ')).width > maxW) { out.push(line); line = [w]; }
+      else line.push(w);
+    });
+    if (line.length) out.push(line);
+  });
+  return out;
+}
+function drawCover(c, img, x, y, w, h, zoom = 1, pan = 0) {
+  const iw = img.naturalWidth, ih = img.naturalHeight, sc = Math.max(w / iw, h / ih) * zoom;
+  const dw = iw * sc, dh = ih * sc;
+  c.drawImage(img, x + (w - dw) / 2 + pan * w, y + (h - dh) / 2, dw, dh);
+}
+const imgReady = img => img && img.complete && img.naturalWidth > 0;
+
+function balloon(c, x, y, r, col, t, i) {
+  c.save(); c.translate(x, y); c.rotate(Math.sin(t * 1.3 + i) * 0.08);
+  c.strokeStyle = 'rgba(80,70,100,.35)'; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(0, r * 1.25); c.quadraticCurveTo(12 * Math.sin(t * 2 + i), r * 2.1, 0, r * 3); c.stroke();
+  c.fillStyle = col; c.beginPath(); c.ellipse(0, 0, r, r * 1.2, 0, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.moveTo(-6, r * 1.3); c.lineTo(6, r * 1.3); c.lineTo(0, r * 1.15); c.fill();
+  c.fillStyle = 'rgba(255,255,255,.45)'; c.beginPath(); c.ellipse(-r * .35, -r * .45, r * .17, r * .3, -.5, 0, Math.PI * 2); c.fill();
+  c.restore();
+}
+function flower(c, x, y, r, col, center, rot) {
+  c.save(); c.translate(x, y); c.rotate(rot);
+  c.fillStyle = '#9cc79a';
+  for (let k = 0; k < 2; k++) { c.save(); c.rotate(k * Math.PI + .6); c.beginPath(); c.ellipse(0, r * 1.05, r * .28, r * .6, 0, 0, Math.PI * 2); c.fill(); c.restore(); }
+  c.fillStyle = col;
+  for (let k = 0; k < 6; k++) { c.save(); c.rotate(k * Math.PI / 3); c.beginPath(); c.ellipse(0, -r * .58, r * .36, r * .6, 0, 0, Math.PI * 2); c.fill(); c.restore(); }
+  c.fillStyle = center; c.beginPath(); c.arc(0, 0, r * .3, 0, Math.PI * 2); c.fill();
+  c.restore();
+}
+function drawCake(c, cx, cy, sc, p, t, lit, outT) {
+  const [c1, c2, fr] = p.cake;
+  c.save(); c.translate(cx, cy); c.scale(sc, sc);
+  c.fillStyle = 'rgba(0,0,0,.12)'; c.beginPath(); c.ellipse(0, 128, 190, 26, 0, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#f1ecf5'; c.beginPath(); c.ellipse(0, 118, 182, 24, 0, 0, Math.PI * 2); c.fill();
+  c.fillStyle = c1; rr(c, -150, 10, 300, 108, 16); c.fill();
+  c.fillStyle = c2; rr(c, -105, -76, 210, 90, 14); c.fill();
+  const drips = (x, y, w) => {
+    c.fillStyle = fr; rr(c, x, y, w, 18, 9); c.fill();
+    for (let j = 0, n = Math.floor(w / 30); j < n; j++) { const len = 10 + ((j * 37) % 5) * 5; rr(c, x + 6 + j * 30, y + 6, 18, len + 10, 9); c.fill(); }
+  };
+  drips(-150, 10, 300); drips(-105, -76, 210);
+  for (let i = 0; i < 16; i++) {
+    c.save(); c.translate(-128 + rnd(i, 9) * 256, 58 + rnd(i, 10) * 48); c.rotate(rnd(i, 11) * 3);
+    c.fillStyle = p.colors[i % p.colors.length]; rr(c, -7, -2.5, 14, 5, 2.5); c.fill(); c.restore();
+  }
+  [-60, -20, 20, 60].forEach((k, i) => {
+    c.fillStyle = '#ffffff'; rr(c, k - 7, -136, 14, 62, 4); c.fill();
+    c.strokeStyle = p.accent2; c.lineWidth = 3;
+    for (let s = 0; s < 4; s++) { c.beginPath(); c.moveTo(k - 7, -128 + s * 15); c.lineTo(k + 7, -136 + s * 15); c.stroke(); }
+    if (lit) {
+      const f = 1 + 0.12 * Math.sin(t * 18 + i * 2);
+      const g = c.createRadialGradient(k, -152, 2, k, -152, 34); g.addColorStop(0, 'rgba(255,220,120,.7)'); g.addColorStop(1, 'rgba(255,200,80,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(k, -152, 34, 0, Math.PI * 2); c.fill();
+      const top = -138 - 36 * f;
+      const fg = c.createLinearGradient(0, top, 0, -138); fg.addColorStop(0, '#ff7b25'); fg.addColorStop(1, '#fff3a0');
+      c.fillStyle = fg; c.beginPath(); c.moveTo(k, top);
+      c.quadraticCurveTo(k + 13, -150, k, -139); c.quadraticCurveTo(k - 13, -150, k, top); c.fill();
+    } else if (outT > 0) {
+      for (let j = 0; j < 3; j++) {
+        const a = Math.max(0, .5 - outT * .3 - j * .08);
+        c.fillStyle = `rgba(150,150,150,${a})`;
+        c.beginPath(); c.arc(k + Math.sin(outT * 3 + j + i) * 7, -142 - outT * 60 - j * 18, 6 + outT * 6, 0, Math.PI * 2); c.fill();
+      }
+    }
+  });
+  c.restore();
+}
+function confettiBurst(c, dt, seed, ox, oy, colors) {
+  if (dt < 0 || dt > 2.8) return;
+  for (let i = 0; i < 90; i++) {
+    const vx = (rnd(i, seed) - .5) * 1100, vy = -(500 + rnd(i, seed + 1) * 900);
+    c.save(); c.globalAlpha *= clamp(1 - dt / 2.8);
+    c.translate(ox + vx * dt, oy + vy * dt + 750 * dt * dt); c.rotate(dt * (4 + rnd(i, seed + 2) * 8));
+    c.fillStyle = colors[i % colors.length]; c.fillRect(-8, -4, 16, 8); c.restore();
+  }
+}
+
+/* --- animated backgrounds per theme --- */
+const BG = {
+  balloons(c, t, p) {
+    c.fillStyle = 'rgba(255,255,255,.5)';
+    for (let y = 22; y < H; y += 44) for (let x = (Math.round(y / 44) % 2) * 22 + 11; x < W; x += 44) { c.beginPath(); c.arc(x, y, 3, 0, 7); c.fill(); }
+    for (let i = 0; i < 14; i++) {
+      const sp = 50 + rnd(i, 2) * 70, span = H + 400;
+      const y = H + 200 - ((t * sp + rnd(i, 3) * span) % span);
+      balloon(c, rnd(i, 1) * W + Math.sin(t * .9 + i) * 18, y, 26 + rnd(i, 4) * 22, p.colors[i % p.colors.length], t, i);
+    }
+    c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 2; c.beginPath();
+    for (let x = 0; x <= W; x += 10) { const y = 36 + Math.sin(x / W * Math.PI) * 40; x ? c.lineTo(x, y) : c.moveTo(x, y); }
+    c.stroke();
+    for (let k = 0; k < 12; k++) {
+      const x = 30 + k * 60, y = 36 + Math.sin(x / W * Math.PI) * 40;
+      c.save(); c.translate(x, y); c.rotate(Math.sin(t * 2 + k) * .08); c.fillStyle = p.colors[k % p.colors.length];
+      c.beginPath(); c.moveTo(-22, 0); c.lineTo(22, 0); c.lineTo(0, 46); c.closePath(); c.fill(); c.restore();
+    }
+  },
+  cake(c, t, p) {
+    for (let i = 0; i < 70; i++) {
+      const sp = 40 + rnd(i, 2) * 60, y = ((t * sp + rnd(i, 3) * H) % (H + 40)) - 20;
+      c.save(); c.translate(rnd(i, 1) * W, y); c.rotate(t * (rnd(i, 4) - .5) * 3 + i);
+      c.fillStyle = p.colors[i % p.colors.length]; rr(c, -9, -3, 18, 6, 3); c.fill(); c.restore();
+    }
+    c.fillStyle = '#6b3a2a'; c.fillRect(0, 0, W, 46);
+    for (let x = 0; x < W; x += 40) { const len = 20 + ((x * 7) % 5) * 10 + Math.sin(t * 1.5 + x) * 3; rr(c, x + 8, 30, 24, len, 12); c.fill(); }
+  },
+  floral(c, t, p) {
+    [[120, 300, 260, 'rgba(244,166,193,.25)'], [600, 1000, 300, 'rgba(201,228,197,.4)'], [600, 200, 200, 'rgba(255,214,224,.35)']].forEach(([x, y, r, col]) => {
+      const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2);
+    });
+    for (let i = 0; i < 26; i++) {
+      const sp = 40 + rnd(i, 2) * 50, y = ((t * sp + rnd(i, 3) * H) % (H + 60)) - 30;
+      c.save(); c.translate(rnd(i, 1) * W + Math.sin(t + i) * 30, y); c.rotate(t * (1 + rnd(i, 4)) + i);
+      c.globalAlpha *= .75; c.fillStyle = p.colors[i % 4]; c.beginPath(); c.ellipse(0, 0, 9, 15, 0, 0, Math.PI * 2); c.fill(); c.restore();
+    }
+    flower(c, 40, 60, 80, p.colors[0], '#ffd166', t * .15);
+    flower(c, W - 40, 110, 64, p.colors[2], '#fff3b0', -t * .12);
+    flower(c, 50, H - 90, 70, p.colors[2], '#fff3b0', t * .1);
+    flower(c, W - 50, H - 60, 92, p.colors[0], '#ffd166', -t * .14);
+  },
+  minimal(c, t, p) {
+    c.lineWidth = 2;
+    for (let i = 0; i < 8; i++) {
+      c.strokeStyle = i % 3 ? 'rgba(0,0,0,.06)' : 'rgba(232,70,124,.16)';
+      c.beginPath(); c.arc(rnd(i, 1) * W + Math.sin(t * .2 + i) * 40, rnd(i, 2) * H + Math.cos(t * .25 + i) * 40, 60 + rnd(i, 3) * 140, 0, Math.PI * 2); c.stroke();
+    }
+    c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = 1.5; rr(c, 34, 34, W - 68, H - 68, 18); c.stroke();
+  },
+  night(c, t, p) {
+    for (let i = 0; i < 140; i++) {
+      c.globalAlpha = .3 + .7 * Math.abs(Math.sin(t * (.8 + rnd(i, 4) * 2) + i));
+      c.fillStyle = '#fff'; c.beginPath(); c.arc(rnd(i, 1) * W, rnd(i, 2) * H * .92, .6 + rnd(i, 3) * 2.2, 0, Math.PI * 2); c.fill();
+    }
+    c.globalAlpha = 1;
+    const g = c.createRadialGradient(W * .78, 160, 20, W * .78, 160, 170); g.addColorStop(0, 'rgba(255,224,138,.45)'); g.addColorStop(1, 'rgba(255,224,138,0)');
+    c.fillStyle = g; c.fillRect(W * .78 - 170, -10, 340, 340);
+    c.fillStyle = '#ffe9a8'; c.beginPath(); c.arc(W * .78, 160, 66, 0, Math.PI * 2); c.fill();
+    c.fillStyle = 'rgba(200,160,60,.3)';
+    [[-20, -10, 12], [18, 18, 9], [10, -30, 6]].forEach(([dx, dy, r]) => { c.beginPath(); c.arc(W * .78 + dx, 160 + dy, r, 0, Math.PI * 2); c.fill(); });
+    const ph = (t % 6) / 1.1;
+    if (ph < 1) {
+      const sx = 80 + ph * 520, sy = 140 + ph * 200;
+      const lg = c.createLinearGradient(sx - 140, sy - 54, sx, sy); lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(1, 'rgba(255,255,255,.95)');
+      c.strokeStyle = lg; c.lineWidth = 3; c.beginPath(); c.moveTo(sx - 140, sy - 54); c.lineTo(sx, sy); c.stroke();
+    }
+    c.fillStyle = '#0a0820'; c.beginPath(); c.moveTo(0, H);
+    for (let x = 0; x <= W; x += 20) c.lineTo(x, H - 90 - Math.sin(x / 90) * 30 - Math.sin(x / 37) * 12);
+    c.lineTo(W, H); c.closePath(); c.fill();
+  },
+  retro(c, t, p, sky) {
+    for (let i = 0; i < 60; i++) {
+      c.globalAlpha = .3 + .7 * Math.abs(Math.sin(t * 1.5 + i)); c.fillStyle = '#fff';
+      c.fillRect(rnd(i, 1) * W, rnd(i, 2) * H * .5, 2.5, 2.5);
+    }
+    c.globalAlpha = 1;
+    const hy = H * .68, cx = W / 2, cy = hy - 60, r = 210;
+    c.save(); c.shadowColor = '#ff4fa3'; c.shadowBlur = 70; c.fillStyle = '#ff7ab8'; c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill(); c.restore();
+    c.save(); c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.clip();
+    const sg = c.createLinearGradient(0, cy - r, 0, cy + r); sg.addColorStop(0, '#ffe66d'); sg.addColorStop(1, '#ff3f8e');
+    c.fillStyle = sg; c.fillRect(cx - r, cy - r, r * 2, r * 2);
+    c.fillStyle = sky; for (let j = 0; j < 7; j++) c.fillRect(cx - r, cy + j * 28 - 6, r * 2, 3 + j * 2.4);
+    c.restore();
+    c.fillStyle = '#160630'; c.fillRect(0, hy, W, H - hy);
+    c.save(); c.strokeStyle = 'rgba(63,242,255,.75)'; c.lineWidth = 2; c.shadowColor = '#3ff2ff'; c.shadowBlur = 8;
+    const off = (t * .6) % 1;
+    for (let i = 0; i < 14; i++) { const q = (i + off) / 14, y = hy + (H - hy) * q * q; c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+    for (let j = -12; j <= 12; j++) { c.beginPath(); c.moveTo(W / 2 + j * 30, hy); c.lineTo(W / 2 + j * 260, H); c.stroke(); }
+    c.strokeStyle = '#ff4fa3'; c.shadowColor = '#ff4fa3'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, hy); c.lineTo(W, hy); c.stroke();
+    c.restore();
+  }
+};
+function drawBg(c, t, theme, p) {
+  const g = c.createLinearGradient(0, 0, 0, H);
+  p.bg.forEach((col, i) => g.addColorStop(i / (p.bg.length - 1), col));
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  BG[theme](c, t, p, g);
+}
+
+/* --- scenes --- */
+const SCENES = {
+  surprise(c, lt, dur, s, p) {
+    txt(c, tt('spCanvas', s.lang), W / 2, H * .24, {size: 54, font: p.fTitle, weight: p.wTitle, style: p.sTitle, color: p.accent, maxW: W - 100, glow: p.glow});
+    const out = lt > 1.7;
+    drawCake(c, W / 2, H * .58, 1.6, p, lt, !out, out ? lt - 1.7 : 0);
+    if (out) {
+      const a = ease.back(clamp((lt - 1.7) / .5));
+      c.save(); c.translate(W / 2, H * .34); c.scale(a, a);
+      txt(c, tt('whoosh', s.lang), 0, 0, {size: 70, font: p.fTitle, weight: p.wTitle, color: p.accent2, glow: p.glow});
+      c.restore();
+    }
+  },
+  greet(c, lt, dur, s, p) {
+    c.save(); c.translate(W / 2, H * .42); c.rotate(lt * .25); c.globalAlpha *= .14; c.fillStyle = p.accent2;
+    for (let i = 0; i < 16; i++) { c.rotate(Math.PI / 8); c.beginPath(); c.moveTo(0, 0); c.lineTo(-34, -760); c.lineTo(34, -760); c.closePath(); c.fill(); }
+    c.restore();
+    const a = ease.back(clamp(lt / .9));
+    c.save(); c.translate(W / 2, H * .42); c.scale(.6 + .4 * a, .6 + .4 * a);
+    txt(c, tt('cardTitle', s.lang) + '!', 0, 0, {size: 116, font: p.fTitle, weight: p.wTitle, style: p.sTitle, color: p.accent, maxW: W - 80, glow: p.glow, shadow: 'rgba(0,0,0,.15)'});
+    c.restore();
+    const b = clamp((lt - .8) / .6);
+    c.save(); c.globalAlpha *= b;
+    txt(c, tt('greetSub', s.lang), W / 2, H * .52 + (1 - b) * 20, {size: 46, font: p.fBody, weight: 600, color: p.sub});
+    c.restore();
+  },
+  name(c, lt, dur, s, p) {
+    const a1 = ease.out(clamp(lt / .6));
+    c.save(); c.globalAlpha *= a1;
+    txt(c, SALUTE[s.lang][s.rel], W / 2, H * .35 - (1 - a1) * 40, {size: 46, font: p.fBody, weight: 600, color: p.sub, maxW: W - 100});
+    c.restore();
+    const a2 = ease.back(clamp((lt - .25) / .8));
+    c.save(); c.translate(W / 2, H * .45); c.scale(.5 + .5 * a2, .5 + .5 * a2); c.globalAlpha *= clamp((lt - .25) / .4);
+    txt(c, (s.name || '').trim() || tt('nameFallback', s.lang), 0, 0, {size: 132, font: p.fName, weight: p.wName, color: p.text, maxW: W - 90, glow: p.glow});
+    c.restore();
+    const u = ease.out(clamp((lt - .8) / .6));
+    if (u > 0) {
+      c.strokeStyle = p.accent; c.lineWidth = 8; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(W / 2 - 210 * u, H * .45 + 86); c.quadraticCurveTo(W / 2, H * .45 + 110, W / 2 + 210 * u, H * .45 + 80); c.stroke();
+    }
+    const nick = (s.nick || '').trim();
+    if (nick) { c.save(); c.globalAlpha *= clamp((lt - 1) / .5); txt(c, `“${nick}”`, W / 2, H * .55, {size: 48, font: p.fBody, style: 'italic', color: p.sub, maxW: W - 120}); c.restore(); }
+    const ms = milestone(s);
+    if (ms) {
+      const a3 = ease.back(clamp((lt - 1.3) / .6));
+      if (a3 > 0) {
+        c.save(); c.translate(W / 2, H * .64); c.scale(a3, a3);
+        c.font = `600 40px ${p.fBody}`; const w = Math.min(W - 100, c.measureText(ms).width + 70);
+        c.fillStyle = p.accent2; rr(c, -w / 2, -38, w, 76, 38); c.fill();
+        txt(c, ms, 0, 2, {size: 40, font: p.fBody, weight: 600, color: p.pillText, maxW: w - 40});
+        c.restore();
+      }
+    }
+  },
+  photo(c, lt, dur, s, p, img) {
+    if (imgReady(img)) {
+      const a = ease.out(clamp(lt / .9)), fw = 520, fh = 620;
+      c.save(); c.translate(W / 2, H * .45);
+      c.rotate((-5 + 4 * a) * Math.PI / 180 + Math.sin(lt * 1.2) * .01); c.scale(.85 + .15 * a, .85 + .15 * a);
+      c.shadowColor = 'rgba(0,0,0,.3)'; c.shadowBlur = 40; c.shadowOffsetY = 16;
+      c.fillStyle = '#fff'; rr(c, -fw / 2 - 20, -fh / 2 - 20, fw + 40, fh + 120, 18); c.fill();
+      c.shadowColor = 'transparent'; c.shadowBlur = 0; c.shadowOffsetY = 0;
+      c.save(); rr(c, -fw / 2, -fh / 2, fw, fh, 8); c.clip(); drawCover(c, img, -fw / 2, -fh / 2, fw, fh, 1.08 + lt * .03, Math.sin(lt * .5) * .02); c.restore();
+      txt(c, tt('photoCap', s.lang), 0, fh / 2 + 50, {size: 38, font: p.fTitle, weight: p.wTitle === 800 ? 600 : p.wTitle, color: '#4a3a44', maxW: fw});
+      c.restore();
+    } else {
+      const a = ease.back(clamp(lt / .8));
+      drawCake(c, W / 2, H * .5, 1.5 * a + .01, p, lt, true, 0);
+      c.save(); c.globalAlpha *= clamp((lt - .6) / .5);
+      txt(c, tt('cakeCap', s.lang), W / 2, H * .74, {size: 50, font: p.fTitle, weight: p.wTitle, style: p.sTitle, color: p.accent, maxW: W - 100, glow: p.glow});
+      c.restore();
+    }
+  },
+  msg(c, lt, dur, s, p) {
+    const msg = finalMessage(s);
+    let size = 50, lines = [];
+    for (; size >= 30; size -= 4) { c.font = `400 ${size}px ${p.fBody}`; lines = wrapLines(c, msg, W - 180); if (lines.length * size * 1.55 < H * .5) break; }
+    const lh = size * 1.55, total = lines.length * lh, top = H * .52 - total / 2;
+    txt(c, tt('forYou', s.lang), W / 2, top - 150, {size: 42, font: p.fTitle, weight: p.wTitle === 400 ? 400 : 600, style: p.sTitle, color: p.accent, maxW: W - 100, glow: p.glow});
+    c.fillStyle = p.panel; rr(c, 56, top - 70, W - 112, total + 140, 36); c.fill();
+    txt(c, '“', 100, top - 40, {size: 120, font: 'Georgia, serif', color: p.accent});
+    c.font = `400 ${size}px ${p.fBody}`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = p.text;
+    const n = lines.reduce((a, l) => a + l.length, 0), rev = clamp(lt / (dur * .7)) * n, space = c.measureText(' ').width;
+    let idx = 0;
+    lines.forEach((ln, li) => {
+      let x = W / 2 - c.measureText(ln.join(' ')).width / 2; const y = top + lh * li + lh / 2;
+      ln.forEach(w => {
+        const a = clamp(rev - idx);
+        if (a > 0) { c.save(); c.globalAlpha *= a; c.fillText(w, x, y + (1 - a) * 14); c.restore(); }
+        x += c.measureText(w).width + space; idx++;
+      });
+    });
+    const fr = fromLine(s);
+    if (fr) { c.save(); c.globalAlpha *= clamp((lt - dur * .7) / .5); txt(c, '— ' + fr, W / 2, top + total + 120, {size: 40, font: p.fBody, weight: 600, color: p.accent2, maxW: W - 120}); c.restore(); }
+  },
+  card(c, lt, dur, s, p, img) {
+    const has = imgReady(img), frame = s.photoStyle === 'frame';
+    if (has && !frame) {
+      c.save(); c.globalAlpha *= clamp(lt / .8); drawCover(c, img, 0, 0, W, H, 1.06 + lt * .01);
+      c.fillStyle = p.shade; c.fillRect(0, 0, W, H); c.restore();
+    }
+    const px = 56, pw = W - 112, ms = milestone(s), nick = (s.nick || '').trim(), fr = fromLine(s);
+    let msgSize = 34, lines = [], items, total;
+    const build = () => {
+      c.font = `400 ${msgSize}px ${p.fBody}`; lines = wrapLines(c, finalMessage(s), pw - 80);
+      items = [{h: 52, d: y => txt(c, SALUTE[s.lang][s.rel], W / 2, y, {size: 38, font: p.fBody, weight: 600, color: p.sub, maxW: pw - 60})},
+               {h: 124, d: y => txt(c, tt('cardTitle', s.lang), W / 2, y, {size: 92, font: p.fTitle, weight: p.wTitle, style: p.sTitle, color: p.accent, maxW: pw - 50, glow: p.glow})}];
+      if (ms) items.push({h: 70, d: y => {
+        c.font = `600 34px ${p.fBody}`; const w = Math.min(pw - 60, c.measureText(ms).width + 60);
+        c.fillStyle = p.accent2; rr(c, W / 2 - w / 2, y - 30, w, 60, 30); c.fill();
+        txt(c, ms, W / 2, y + 2, {size: 34, font: p.fBody, weight: 600, color: p.pillText, maxW: w - 30});
+      }});
+      if (has && frame) items.push({h: 250, d: y => {
+        c.save(); c.beginPath(); c.arc(W / 2, y, 118, 0, Math.PI * 2); c.fillStyle = p.accent; c.fill();
+        c.beginPath(); c.arc(W / 2, y, 108, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.arc(W / 2, y, 100, 0, Math.PI * 2); c.clip(); drawCover(c, img, W / 2 - 100, y - 100, 200, 200, 1); c.restore();
+      }});
+      items.push({h: 110, d: y => txt(c, (s.name || '').trim() || tt('nameFallback', s.lang), W / 2, y, {size: 84, font: p.fName, weight: p.wName, color: p.text, maxW: pw - 60})});
+      if (nick) items.push({h: 52, d: y => txt(c, `“${nick}”`, W / 2, y, {size: 38, font: p.fBody, style: 'italic', color: p.sub, maxW: pw - 60})});
+      const lh = msgSize * 1.5;
+      items.push({h: lines.length * lh + 24, d: y => {
+        c.font = `400 ${msgSize}px ${p.fBody}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = p.text;
+        const t0 = y - (lines.length * lh) / 2;
+        lines.forEach((ln, i) => c.fillText(ln.join(' '), W / 2, t0 + lh * i + lh / 2));
+      }});
+      if (fr) items.push({h: 54, d: y => txt(c, '— ' + fr, W / 2, y, {size: 36, font: p.fBody, weight: 600, color: p.accent2, maxW: pw - 60})});
+      total = items.reduce((a, it) => a + it.h + 14, 0);
+    };
+    build();
+    while (total > H - 220 && msgSize > 22) { msgSize -= 3; build(); }
+    const ph = total + 100, ptop = (H - ph) / 2;
+    c.fillStyle = p.panel; rr(c, px, ptop, pw, ph, 40); c.fill();
+    c.save(); c.globalAlpha *= .45; c.strokeStyle = p.accent; c.lineWidth = 3; rr(c, px + 12, ptop + 12, pw - 24, ph - 24, 32); c.stroke(); c.restore();
+    let y = ptop + 50;
+    items.forEach((it, i) => {
+      const a = ease.out(clamp((lt - .15 - i * .09) / .6));
+      if (a > 0) { c.save(); c.globalAlpha *= a; it.d(y + it.h / 2 + (1 - a) * 30); c.restore(); }
+      y += it.h + 14;
+    });
+  }
+};
+
+function drawFrame(c, t, s, img, skipSurprise) {
+  const p = THEMES[s.theme] || THEMES.balloons, tl = buildTimeline(s, skipSurprise);
+  c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1;
+  drawBg(c, t, THEMES[s.theme] ? s.theme : 'balloons', p);
+  const last = tl.scenes[tl.scenes.length - 1];
+  const sc = tl.scenes.find(x => t < x.start + x.dur) || last;
+  const lt = t - sc.start;
+  c.globalAlpha = clamp(lt / .45) * (sc === last ? 1 : clamp((sc.start + sc.dur - t) / .45));
+  SCENES[sc.id](c, lt, sc.dur, s, p, img);
+  c.globalAlpha = 1;
+  tl.scenes.forEach(x => {
+    if (x.id === 'greet') confettiBurst(c, t - x.start - .15, 3, W / 2, H * .95, p.colors);
+    if (x.id === 'card') confettiBurst(c, t - x.start - .2, 7, W / 2, H * .95, p.colors);
+    if (x.id === 'surprise') confettiBurst(c, t - x.start - 1.8, 11, W / 2, H * .7, p.colors);
+  });
+  c.restore();
+}
+
+/* Plays the animation on a canvas with requestAnimationFrame */
+class Player {
+  constructor(canvas, skipSurprise = false) {
+    this.cv = canvas; this.c = canvas.getContext('2d'); this.skip = skipSurprise;
+    this.raf = 0; this.t0 = 0; this.loop = false; this.ended = false; this.onEnd = null;
+    this.tick = this.tick.bind(this);
+  }
+  play({loop = false, onEnd = null} = {}) {
+    this.loop = loop; this.onEnd = onEnd; this.ended = false; this.t0 = performance.now();
+    if (!this.raf) this.raf = requestAnimationFrame(this.tick);
+  }
+  stop() { cancelAnimationFrame(this.raf); this.raf = 0; }
+  get running() { return !!this.raf; }
+  time() { return (performance.now() - this.t0) / 1000; }
+  total() { return buildTimeline(state, this.skip).total; }
+  tick() {
+    this.raf = requestAnimationFrame(this.tick);
+    let t = this.time(); const total = this.total();
+    if (t >= total) {
+      if (this.loop && t >= total + 1.8) { this.t0 = performance.now(); t = 0; }
+      else if (!this.loop && !this.ended) { this.ended = true; if (this.onEnd) this.onEnd(); }
+    }
+    if (!document.hidden || recording) drawFrame(this.c, t, state, photoImg, this.skip);
+  }
+}
+
+/* =====================================================================
+   JS PART 7 — MUSIC (original tracks synthesised with Web Audio,
+   so they are royalty-free) + optional uploaded audio file
+   ===================================================================== */
+const TRACKS = {
+  // Confetti Pop: C – G – Am – F, plucky and bright
+  t1: {bpm: 120, spb: 8, lead: 'pluck', leadVol: .22, arpType: 'bell', arpVol: .06, bassType: 'bass', bassVol: .22, bassMode: 'half',
+    bars: [{chord: [60, 64, 67], bass: 48}, {chord: [59, 62, 67], bass: 43}, {chord: [57, 60, 64], bass: 45}, {chord: [57, 60, 65], bass: 41}],
+    arp: [0, 2, 1, 2, 0, 2, 1, 2],
+    melody: [76, null, 79, 76, 72, null, 74, 76,  74, null, 71, 74, 79, null, 77, 74,  72, null, 76, 72, 69, null, 71, 72,  77, 76, 74, 72, 74, null, null, null]},
+  // Music Box: F – C – Dm – Bb, gentle 3/4
+  t2: {bpm: 96, spb: 6, lead: 'bell', leadVol: .2, arpType: 'bell', arpVol: .05, bassType: 'soft', bassVol: .16, bassMode: 'bar',
+    bars: [{chord: [65, 69, 72], bass: 53}, {chord: [64, 67, 72], bass: 48}, {chord: [62, 65, 69], bass: 50}, {chord: [62, 65, 70], bass: 46}],
+    arp: [0, null, 1, null, 2, null],
+    melody: [81, null, 79, 77, null, 72,  79, null, 76, 72, null, null,  77, null, 74, 69, null, 74,  74, null, 77, 74, null, null]},
+  // Retro Party: Am – F – C – G, 8-bit squares
+  t3: {bpm: 140, spb: 8, lead: 'chip', leadVol: .12, arpType: 'chip', arpVol: .04, bassType: 'chipbass', bassVol: .1, bassMode: 'eighths',
+    bars: [{chord: [57, 60, 64], bass: 45}, {chord: [53, 57, 60], bass: 41}, {chord: [55, 60, 64], bass: 48}, {chord: [55, 59, 62], bass: 43}],
+    arp: [0, 1, 2, 1, 0, 1, 2, 1],
+    melody: [69, 72, 76, 72, 79, null, 76, null,  77, null, 72, 69, 72, null, 74, null,  76, null, 79, 76, 84, null, 79, null,  79, 77, 76, 74, 71, null, 74, null]},
+  // Starry Night: D – Bm – G – A, slow pads
+  t4: {bpm: 72, spb: 8, lead: 'bell', leadVol: .16, arpType: 'pluck', arpVol: .05, bassType: 'soft', bassVol: .16, bassMode: 'bar', padVol: .035,
+    bars: [{chord: [62, 66, 69, 73], bass: 50}, {chord: [59, 62, 66, 69], bass: 47}, {chord: [55, 59, 62, 66], bass: 43}, {chord: [57, 61, 64, 69], bass: 45}],
+    arp: [0, null, 2, null, 3, null, 2, null],
+    melody: [78, null, null, 81, null, null, 76, null,  74, null, null, 73, null, null, 71, null,  74, null, null, 78, null, null, 79, null,  76, null, null, null, 73, null, null, null]}
+};
+
+const Music = (() => {
+  let ctx = null, master = null, recDest = null, timer = null, step = 0, nextT = 0;
+  let current = 'none', playing = false;
+  const customEl = new Audio(); customEl.loop = true; customEl.preload = 'auto';
+  let customNode = null, hasCustom = false;
+  const listeners = [];
+
+  function init() {
+    if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return true; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+    ctx = new AC(); master = ctx.createGain(); master.gain.value = .55; master.connect(ctx.destination);
+    if (ctx.createMediaStreamDestination) { recDest = ctx.createMediaStreamDestination(); master.connect(recDest); }
+    return true;
+  }
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+  function voice(type, m, t, dur, vol) {
+    const f = hz(m), g = ctx.createGain(), o = ctx.createOscillator();
+    let out = g; g.connect(master);
+    o.frequency.value = f;
+    if (type === 'bell') {
+      o.type = 'sine';
+      const o2 = ctx.createOscillator(), g2 = ctx.createGain(); o2.type = 'sine'; o2.frequency.value = f * 3; g2.gain.value = .22;
+      o2.connect(g2); g2.connect(g); o2.start(t); o2.stop(t + dur + .1);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .005); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    } else if (type === 'pluck') {
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .006); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    } else if (type === 'chip' || type === 'chipbass') {
+      o.type = 'square';
+      g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + dur * .7); g.gain.linearRampToValueAtTime(.0001, t + dur);
+    } else if (type === 'pad') {
+      o.type = 'sawtooth';
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); lp.connect(g); out = null;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .5); g.gain.linearRampToValueAtTime(vol * .8, t + dur * .7); g.gain.linearRampToValueAtTime(.0001, t + dur);
+    } else { // 'bass' / 'soft'
+      o.type = type === 'bass' ? 'triangle' : 'sine';
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    }
+    if (out) o.connect(g);
+    o.start(t); o.stop(t + dur + .1);
+  }
+
+  function playStep(tr, n, t, sd) {
+    const total = tr.bars.length * tr.spb, s = n % total, bar = tr.bars[Math.floor(s / tr.spb)], i = s % tr.spb;
+    const m = tr.melody[s]; if (m) voice(tr.lead, m, t, sd * 1.9, tr.leadVol);
+    const a = tr.arp[i]; if (a != null) voice(tr.arpType, bar.chord[a % bar.chord.length] + 12, t, sd * 1.5, tr.arpVol);
+    if (tr.bassMode === 'eighths') { if (i % 2 === 0) voice(tr.bassType, bar.bass, t, sd * .9, tr.bassVol); }
+    else if (tr.bassMode === 'half') { if (i === 0 || i === tr.spb / 2) voice(tr.bassType, bar.bass, t, sd * tr.spb / 2 * .95, tr.bassVol); }
+    else if (i === 0) voice(tr.bassType, bar.bass, t, sd * tr.spb * .95, tr.bassVol);
+    if (tr.padVol && i === 0) bar.chord.forEach(nn => voice('pad', nn, t, sd * tr.spb, tr.padVol));
+  }
+  function scheduler() {
+    const tr = TRACKS[current]; if (!tr) return;
+    const sd = 60 / tr.bpm / 2; // one step = an eighth note
+    while (nextT < ctx.currentTime + .15) { playStep(tr, step, nextT, sd); nextT += sd; step++; }
+  }
+  function emit() { listeners.forEach(fn => fn()); }
+
+  function stop() {
+    clearInterval(timer); timer = null;
+    customEl.pause();
+    playing = false; emit();
+  }
+  function play(id) {
+    if (!id || id === 'none') { stop(); return; }
+    if (id === 'custom' && !hasCustom) id = 't1';
+    if (!init()) return;
+    stop();
+    current = id; playing = true;
+    if (id === 'custom') {
+      if (!customNode) { try { customNode = ctx.createMediaElementSource(customEl); customNode.connect(master); } catch (e) {} }
+      customEl.currentTime = 0;
+      customEl.play().catch(() => { playing = false; emit(); toast(tt('audioFail')); });
+    } else {
+      step = 0; nextT = ctx.currentTime + .06; scheduler(); timer = setInterval(scheduler, 25);
+    }
+    emit();
+  }
+  function setCustom(file) {
+    if (customEl.src) URL.revokeObjectURL(customEl.src);
+    customEl.src = URL.createObjectURL(file); hasCustom = true;
+  }
+  return {
+    init, play, stop, setCustom,
+    toggle(id) { playing ? stop() : play(id); },
+    isPlaying: () => playing, current: () => current, hasCustom: () => hasCustom,
+    stream: () => recDest ? recDest.stream : null,
+    onChange: fn => listeners.push(fn)
+  };
+})();
+
+function updateMusicButtons() {
+  const on = Music.isPlaying();
+  const b = $('#musicToggle'); if (b) b.textContent = on ? tt('pause') : tt('play');
+  const v = $('#vMusic'); if (v) v.textContent = on ? tt('pauseMusic') : tt('playMusic');
+}
+Music.onChange(updateMusicButtons);
+
+/* =====================================================================
+   JS PART 8 — SURPRISE MODE (DOM overlay: cake cutting or envelope)
+   ===================================================================== */
+function buildSurpriseCake() {
+  const inner = '<div class="candle" style="left:83px"><b class="flame"></b></div><div class="candle" style="left:108px"><b class="flame"></b></div>' +
+    '<div class="candle" style="left:138px"><b class="flame"></b></div><div class="candle" style="left:163px"><b class="flame"></b></div>' +
+    '<div class="tier top"></div><div class="tier bot"></div><div class="plate"></div>';
+  $$('#surprise .inner').forEach(el => { el.innerHTML = inner; });
+}
+function confetti(n = 80, colors = ['#ff5d8f', '#ffb703', '#3a86ff', '#8338ec', '#06d6a0', '#fb5607']) {
+  const box = document.createElement('div'); box.className = 'confetti';
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('i');
+    s.style.cssText = `left:${50 + (Math.random() - .5) * 30}%;--dx:${((Math.random() - .5) * 110).toFixed(1)}vw;--dy:${(-(25 + Math.random() * 45)).toFixed(1)}vh;` +
+      `--r:${Math.round(Math.random() * 720)}deg;background:${colors[i % colors.length]};animation-delay:${(Math.random() * .15).toFixed(2)}s`;
+    box.appendChild(s);
+  }
+  document.body.appendChild(box); setTimeout(() => box.remove(), 2800);
+}
+function runSurprise(s, {onTap, onDone} = {}) {
+  const ov = $('#surprise'), p = THEMES[s.theme] || THEMES.balloons;
+  ov.className = ''; ov.dataset.style = s.surpriseStyle === 'envelope' ? 'envelope' : 'cake';
+  ov.style.setProperty('--sp1', p.bg[0]); ov.style.setProperty('--sp2', p.bg[p.bg.length - 1]);
+  ov.style.setProperty('--cake1', p.cake[0]); ov.style.setProperty('--cake2', p.cake[1]); ov.style.setProperty('--frost', p.cake[2]);
+  ov.style.setProperty('--env1', p.colors[0]); ov.style.setProperty('--env2', p.accent); ov.style.setProperty('--env3', p.colors[1 % p.colors.length]);
+  ov.style.setProperty('--sps', Math.min(1.3, (window.innerWidth - 40) / 300).toFixed(2));
+  $('#spHint').textContent = tt(ov.dataset.style === 'cake' ? 'tapCake' : 'tapEnv', s.lang);
+  $('#letterText').textContent = tt('cardTitle', s.lang) + ', ' + displayName(s) + '!';
+  $('#letterSub').textContent = tt('letterFor', s.lang);
+  ov.hidden = false; void ov.offsetWidth; ov.classList.add('in'); ov.focus({preventScroll: true});
+  let done = false;
+  const finish = () => { ov.classList.add('out'); setTimeout(() => { ov.hidden = true; ov.className = ''; if (onDone) onDone(); }, 550); };
+  const go = e => {
+    if (e && e.type === 'keydown' && !['Enter', ' '].includes(e.key)) return;
+    if (done) return; done = true;
+    ov.removeEventListener('click', go); ov.removeEventListener('keydown', go);
+    if (onTap) onTap();
+    if (ov.dataset.style === 'cake') {
+      ov.classList.add('blown');
+      setTimeout(() => ov.classList.add('cut'), 650);
+      setTimeout(() => { ov.classList.add('split'); confetti(90, p.colors); }, 1300);
+      setTimeout(finish, 2800);
+    } else {
+      ov.classList.add('open');
+      setTimeout(() => ov.classList.add('rise'), 650);
+      setTimeout(() => confetti(90, p.colors), 1100);
+      setTimeout(finish, 2700);
+    }
+  };
+  ov.addEventListener('click', go); ov.addEventListener('keydown', go);
+}
+
+/* =====================================================================
+   JS PART 9 — BUILDER: form binding + live preview
+   ===================================================================== */
+function buildThemePicker() {
+  $('#themeGrid').innerHTML = THEME_KEYS.map(k => {
+    const p = THEMES[k];
+    return `<label class="theme-opt"><input type="radio" name="theme" value="${k}"><span class="sw" style="background:linear-gradient(135deg,${p.bg.join(',')})">` +
+      `<b>${p.emoji}</b><em style="font-family:${p.fTitle.replace(/"/g, "'")};color:${p.accent}">শুভ</em><i style="background:${p.accent}"></i><i style="background:${p.accent2}"></i></span>` +
+      `<span data-i18n="th_${k}"></span></label>`;
+  }).join('');
+}
+function writeForm() {
+  $('#fName').value = state.name; $('#fNick').value = state.nick; $('#fSender').value = state.sender;
+  $('#fRel').value = state.rel; $('#fAge').value = state.age; $('#fMsg').value = state.msg; $('#sugLang').value = state.sugLang;
+  $('#fMusic').value = state.music; $('#fSurprise').checked = state.surprise;
+  const check = (name, v) => { const el = $(`input[name="${name}"][value="${v}"]`); if (el) el.checked = true; };
+  check('theme', state.theme); check('photoStyle', state.photoStyle); check('output', state.output); check('surpriseStyle', state.surpriseStyle);
+}
+function readForm() {
+  const radio = (name, d) => (($(`input[name="${name}"]:checked`) || {}).value) || d;
+  state.name = $('#fName').value; state.nick = $('#fNick').value; state.sender = $('#fSender').value;
+  state.rel = $('#fRel').value; state.age = $('#fAge').value; state.msg = $('#fMsg').value; state.sugLang = $('#sugLang').value;
+  state.theme = radio('theme', 'balloons'); state.photoStyle = radio('photoStyle', 'bg'); state.output = radio('output', 'card');
+  state.surprise = $('#fSurprise').checked; state.surpriseStyle = radio('surpriseStyle', 'cake'); state.music = $('#fMusic').value;
+}
+function render() {
+  const card = $('#card'); if (!card) return; // viewer mode has no builder card
+  renderCard(card, state, photoData);
+  $('#toneHint').textContent = TONE[state.lang][state.rel];
+  $('#msgCount').textContent = `${state.msg.length}/300`;
+  const isCard = state.output === 'card';
+  $('#cardSlot').hidden = !isCard; $('#animCanvas').hidden = isCard;
+  $$('.only-card').forEach(e => e.hidden = !isCard);
+  $$('.only-video').forEach(e => e.hidden = isCard);
+  $('#surpriseStyleWrap').style.opacity = state.surprise ? 1 : .45;
+  $('#photoStyleWrap').hidden = !photoData; $('#incPhotoWrap').hidden = !photoData;
+  if (!isCard && !player.running) player.play({loop: true});
+  if (isCard && player.running && !recording) player.stop();
+  if (!$('#shareOut').hidden) refreshShare();
+  loadThemeFonts(state.theme);
+  saveState();
+}
+function validateName() {
+  const ok = !!state.name.trim();
+  $('#fName').classList.toggle('invalid', !ok); $('#nameErr').hidden = ok;
+  if (!ok) { toast(tt('needName')); $('#fName').scrollIntoView({behavior: 'smooth', block: 'center'}); $('#fName').focus({preventScroll: true}); }
+  return ok;
+}
+function suggestMessage() {
+  readForm();
+  const list = MESSAGES[state.sugLang][state.rel];
+  const cur = state.msg.trim();
+  let pick, guard = 0;
+  do { pick = fillName(list[Math.floor(Math.random() * list.length)], state); } while (pick === cur && list.length > 1 && guard++ < 10);
+  $('#fMsg').value = pick; readForm(); render();
+}
+
+/* --- photo upload: downscale for speed, plus a tiny copy for the link --- */
+function loadImageFile(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(url); res(im); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img')); };
+    im.src = url;
+  });
+}
+function downscale(im, max, q) {
+  const sc = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+  const cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
+  cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+  return cv.toDataURL('image/jpeg', q);
+}
+async function onPhoto(e) {
+  const file = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  try {
+    const im = await loadImageFile(file);
+    photoData = downscale(im, 1280, .86);
+    photoSmall = downscale(im, 320, .6).split(',')[1].replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    photoImg = new Image(); photoImg.src = photoData;
+    $('#photoThumb').style.backgroundImage = `url("${photoData}")`; $('#photoThumb').hidden = false; $('#removePhoto').hidden = false;
+    render();
+  } catch (err) { toast(tt('photoFail')); }
+}
+function removePhoto() {
+  photoData = photoSmall = photoImg = null;
+  $('#photoThumb').hidden = true; $('#removePhoto').hidden = true; $('#incPhoto').checked = false;
+  render();
+}
+function onAudio(e) {
+  const file = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  Music.setCustom(file);
+  const opt = $('#fMusic option[value="custom"]'); opt.disabled = false;
+  $('#fMusic').value = 'custom'; $('#audioName').textContent = file.name;
+  readForm(); Music.play('custom'); render();
+}
+
+/* =====================================================================
+   JS PART 10 — EXPORT: PNG (html2canvas) and VIDEO (MediaRecorder)
+   ===================================================================== */
+const H2C_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if (window.html2canvas) return res();
+    const s = document.createElement('script'); s.src = src; s.crossOrigin = 'anonymous';
+    s.onload = () => res(); s.onerror = () => rej(new Error('load ' + src));
+    document.head.appendChild(s);
+  });
+}
+async function exportPNG() {
+  readForm(); if (!validateName()) return;
+  const btn = $('#pngBtn'); btn.disabled = true; toast(tt('pngWorking'));
+  try {
+    await loadScript(H2C_URL);
+    if (document.fonts) await document.fonts.ready;
+    const card = $('#card');
+    const canvas = await window.html2canvas(card, {
+      scale: Math.max(2, 1080 / card.offsetWidth), backgroundColor: null, useCORS: true, logging: false,
+      onclone: doc => { const c = doc.getElementById('card'); if (c) c.classList.add('no-anim'); }
+    });
+    await new Promise((res, rej) => canvas.toBlob(b => { if (!b) return rej(new Error('blob')); download(b, `birthday-${fileSafe(state.name)}.png`); res(); }, 'image/png'));
+    toast(tt('pngDone'));
+  } catch (err) { console.error(err); toast(tt('pngFail'), 4000); }
+  btn.disabled = false;
+}
+function pickMime() {
+  const list = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+  return list.find(m => { try { return MediaRecorder.isTypeSupported(m); } catch (e) { return false; } }) || '';
+}
+async function recordVideo() {
+  readForm(); if (!validateName() || recording) return;
+  const canvas = $('#animCanvas');
+  if (!window.MediaRecorder || !canvas.captureStream) { toast(tt('recUnsupported'), 4000); return; }
+  Music.init(); // must happen inside this click
+  await loadThemeFonts(state.theme);
+  if (document.fonts) await document.fonts.ready;
+  const mime = pickMime();
+  const tracks = [...canvas.captureStream(30).getVideoTracks()];
+  const audio = Music.stream();
+  if (state.music !== 'none' && audio) tracks.push(...audio.getAudioTracks());
+  let rec;
+  try { rec = new MediaRecorder(new MediaStream(tracks), mime ? {mimeType: mime, videoBitsPerSecond: 5e6} : undefined); }
+  catch (e) { try { rec = new MediaRecorder(new MediaStream(tracks)); } catch (e2) { toast(tt('recUnsupported'), 4000); return; } }
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  recording = true;
+  $('#recBtn').disabled = $('#replayBtn').disabled = true; $('#recBox').hidden = false;
+  const total = buildTimeline(state).total;
+  const done = new Promise(res => { rec.onstop = res; });
+  if (state.music !== 'none') Music.play(state.music);
+  player.play({loop: false});
+  rec.start(250);
+  const t0 = performance.now();
+  const iv = setInterval(() => {
+    const pct = Math.min(100, Math.round((performance.now() - t0) / 1000 / (total + .4) * 100));
+    $('#recBar').style.width = pct + '%'; $('#recText').textContent = tt('recording').replace('{p}', state.lang === 'bn' ? bnNum(pct) : pct);
+    if (pct >= 100) { clearInterval(iv); if (rec.state !== 'inactive') rec.stop(); }
+  }, 200);
+  await done;
+  Music.stop();
+  recording = false;
+  $('#recBtn').disabled = $('#replayBtn').disabled = false; $('#recBox').hidden = true; $('#recBar').style.width = '0';
+  player.play({loop: true});
+  if (!chunks.length) { toast(tt('recFail')); return; }
+  const type = rec.mimeType || mime || 'video/webm';
+  const ext = type.includes('mp4') ? 'mp4' : 'webm';
+  const name = `birthday-${fileSafe(state.name)}.${ext}`;
+  download(new Blob(chunks, {type: type.split(';')[0]}), name);
+  toast(tt('recDone').replace('{f}', ext.toUpperCase()), 3500);
+}
+
+/* =====================================================================
+   JS PART 11 — SHARE LINK (data in the URL, no server)
+   ?w=<base64url JSON>   and, if chosen, #p=<tiny photo>
+   ===================================================================== */
+function packState(s) {
+  return b64urlEncode(JSON.stringify({
+    v: 1, l: s.lang, n: s.name.trim(), k: s.nick.trim(), f: s.sender.trim(), r: s.rel, a: s.age.trim(), m: s.msg.trim(),
+    t: s.theme, ps: s.photoStyle, mu: s.music === 'custom' ? 't1' : s.music, o: s.output, su: s.surprise ? 1 : 0, ss: s.surpriseStyle
+  }));
+}
+function unpack(str) {
+  try {
+    const o = JSON.parse(b64urlDecode(str));
+    const S = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+    const pick = (v, arr, d) => arr.includes(v) ? v : d;
+    const s = {
+      lang: pick(o.l, ['bn', 'en'], 'bn'), name: S(o.n, 40), nick: S(o.k, 30), sender: S(o.f, 40), rel: pick(o.r, RELS, 'other'),
+      age: S(o.a, 30), msg: S(o.m, 300), theme: pick(o.t, THEME_KEYS, 'balloons'), photoStyle: pick(o.ps, ['bg', 'frame'], 'bg'),
+      music: pick(o.mu, ['none', 't1', 't2', 't3', 't4'], 'none'), output: pick(o.o, ['card', 'video'], 'card'),
+      surprise: !!o.su, surpriseStyle: pick(o.ss, ['cake', 'envelope'], 'cake')
+    };
+    return s.name.trim() ? s : null;
+  } catch (e) { return null; }
+}
+function buildShareLink() {
+  const base = location.href.split(/[?#]/)[0];
+  let url = base + '?w=' + packState(state);
+  if ($('#incPhoto').checked && photoSmall) url += '#p=' + photoSmall;
+  return url;
+}
+function refreshShare() {
+  const url = buildShareLink();
+  $('#shareUrl').value = url;
+  $('#waBtn').href = 'https://wa.me/?text=' + encodeURIComponent(tt('waText') + ' ' + url);
+  $('#fbBtn').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+  $('#openLink').href = url;
+  const warns = [];
+  if (location.protocol === 'file:') warns.push(tt('fileWarn'));
+  if (state.music === 'custom') warns.push(tt('customWarn'));
+  if (url.length > 8000) warns.push(tt('longWarn'));
+  $('#shareWarn').textContent = warns.join(' '); $('#shareWarn').hidden = !warns.length;
+  return url;
+}
+function makeLink() {
+  readForm(); if (!validateName()) return;
+  $('#shareOut').hidden = false; refreshShare();
+  $('#nativeShare').hidden = !navigator.share;
+}
+async function copyLink() {
+  const url = $('#shareUrl').value;
+  try { await navigator.clipboard.writeText(url); }
+  catch (e) { const i = $('#shareUrl'); i.select(); try { document.execCommand('copy'); } catch (e2) {} }
+  toast(tt('copied'));
+}
+async function nativeShare() {
+  try { await navigator.share({title: tt('cardTitle') + '!', text: tt('waText'), url: $('#shareUrl').value}); } catch (e) {}
+}
+
+/* =====================================================================
+   JS PART 12 — SHARE VIEWER (output only, fullscreen)
+   ===================================================================== */
+function startViewer(data) {
+  document.documentElement.classList.add('share-mode');
+  document.body.classList.remove('lock');
+  $('#intro').hidden = true; $('#app').hidden = true;
+  const v = $('#viewer'); v.hidden = false;
+  if (!data) {
+    $('#viewerStage').innerHTML = `<div class="viewer-err">${tt('viewerErr')}</div>`;
+    $('#viewerStage').classList.add('show'); return;
+  }
+  Object.assign(state, data);
+  const m = location.hash.match(/[#&]p=([A-Za-z0-9_-]+)/);
+  if (m) { photoData = 'data:image/jpeg;base64,' + b64urlToB64(m[1]); photoImg = new Image(); photoImg.src = photoData; }
+  document.documentElement.lang = state.lang;
+  document.title = `${tt('cardTitle')}, ${displayName(state)}!`;
+  const p = THEMES[state.theme];
+  v.style.background = `radial-gradient(120% 90% at 50% 20%, ${p.bg[0]}, ${p.bg[p.bg.length - 1]})`;
+  loadThemeFonts(state.theme);
+  const stage = $('#viewerStage');
+  let vp = null;
+  if (state.output === 'video') {
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; cv.className = 'viewer-canvas';
+    cv.setAttribute('aria-label', tt('cardTitle'));
+    stage.appendChild(cv);
+    vp = new Player(cv, true); // the DOM surprise replaces the canvas one here
+    cv.addEventListener('click', () => vp.play({loop: false}));
+    $('#vReplay').hidden = false; $('#vReplay').onclick = () => vp.play({loop: false});
+  } else {
+    const card = createCard(); stage.appendChild(card); renderCard(card, state, photoData);
+  }
+  const vm = $('#vMusic');
+  if (state.music !== 'none') { vm.hidden = false; vm.onclick = () => Music.toggle(state.music); }
+  updateMusicButtons();
+  const reveal = () => { stage.classList.add('show'); if (vp) vp.play({loop: false}); };
+  if (state.surprise) {
+    buildSurpriseCake();
+    runSurprise(state, {onTap: () => { if (state.music !== 'none') Music.play(state.music); }, onDone: reveal});
+  } else reveal();
+}
+
+/* =====================================================================
+   JS PART 13 — INTRO + START-UP
+   ===================================================================== */
+function runIntro() {
+  const intro = $('#intro');
+  const open = () => {
+    if (intro.classList.contains('opened')) return;
+    intro.classList.add('opened');
+    setTimeout(() => confetti(70), 1200);
+  };
+  setTimeout(open, 900);
+  intro.addEventListener('click', e => { if (!e.target.closest('button')) open(); });
+  $('#startBtn').addEventListener('click', () => {
+    intro.classList.add('leaving'); document.body.classList.remove('lock');
+    setTimeout(() => { intro.hidden = true; }, 750);
+    $('#fName').focus({preventScroll: true});
+  });
+}
+function startBuilder() {
+  restoreState();
+  buildThemePicker(); buildSurpriseCake();
+  $('#cardSlot').appendChild(createCard('card'));
+  player = new Player($('#animCanvas'));
+  writeForm();
+
+  const form = $('#form');
+  form.addEventListener('input', e => {
+    if (e.target.type === 'file') return;
+    readForm();
+    if (e.target.id === 'fName' && state.name.trim()) { $('#fName').classList.remove('invalid'); $('#nameErr').hidden = true; }
+    render();
+  });
+  form.addEventListener('change', e => {
+    if (e.target.type === 'file') return;
+    readForm();
+    if (e.target.id === 'fMusic' && Music.isPlaying()) Music.play(state.music); // switch tracks live
+    if (e.target.name === 'output' && state.output === 'video') player.play({loop: true});
+    render();
+  });
+  $$('[data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+  $('#suggestBtn').addEventListener('click', suggestMessage);
+  $('#fPhoto').addEventListener('change', onPhoto);
+  $('#removePhoto').addEventListener('click', removePhoto);
+  $('#fAudio').addEventListener('change', onAudio);
+  $('#musicToggle').addEventListener('click', () => {
+    readForm();
+    if (!Music.isPlaying() && state.music === 'none') { toast(tt('pickTrack')); $('#fMusic').focus(); return; }
+    Music.toggle(state.music);
+  });
+  $('#pngBtn').addEventListener('click', exportPNG);
+  $('#replayBtn').addEventListener('click', () => player.play({loop: true}));
+  $('#recBtn').addEventListener('click', recordVideo);
+  $('#trySurprise').addEventListener('click', () => {
+    readForm();
+    runSurprise(state, {
+      onTap: () => { if (state.music !== 'none' && !Music.isPlaying()) Music.play(state.music); },
+      onDone: () => { if (state.output === 'video') player.play({loop: true}); }
+    });
+  });
+  $('#makeLink').addEventListener('click', makeLink);
+  $('#incPhoto').addEventListener('change', () => { if (!$('#shareOut').hidden) refreshShare(); });
+  $('#copyBtn').addEventListener('click', copyLink);
+  $('#nativeShare').addEventListener('click', nativeShare);
+
+  // Hide the floating "Preview" button while the preview is on screen
+  if (window.IntersectionObserver) {
+    new IntersectionObserver(([en]) => { $('#jumpPreview').style.opacity = en.isIntersecting ? 0 : 1; $('#jumpPreview').style.pointerEvents = en.isIntersecting ? 'none' : ''; },
+      {threshold: .25}).observe($('#previewPanel'));
+  }
+
+  applyLang();
+  runIntro();
+}
+
+(function init() {
+  const w = new URLSearchParams(location.search).get('w');
+  if (w !== null) startViewer(unpack(w));
+  else startBuilder();
+})();
+</script>
+</body>
+</html>
