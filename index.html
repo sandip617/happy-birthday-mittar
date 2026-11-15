@@ -2923,7 +2923,8 @@
         preview: 'লাইভ প্রিভিউ', dlPng: '⬇️ PNG ডাউনলোড', replay: '▶️ আবার চালাও', record: '⏺️ ভিডিও রেকর্ড ও ডাউনলোড', tryS: '🎁 সারপ্রাইজ দেখো',
         share: 'শেয়ার করো', makeLink: '🔗 শেয়ার লিংক বানাও',
         copy: '📋 কপি', copied: 'লিংক কপি হয়েছে!', more: 'আরও…', openLink: '👀 খুলে দেখো',
-        shareNote: 'লিংকের মধ্যেই সব তথ্য থাকে, কোনো সার্ভার নেই। ছবি লিংকে যায় না — ছবিসহ পাঠাতে PNG বা ভিডিও ডাউনলোড করে শেয়ার করো।',
+        shareNote: 'ছবিসহ কার্ডটা জমা থাকে, আর লিংক থাকে এক লাইনের। লিংক যার কাছে থাকবে, সে-ই কার্ড আর ছবি দেখতে পাবে।',
+        photoWarn: 'এই মুহূর্তে ছবিটা লিংকে যোগ করা গেল না, তাই এই লিংকে ছবি থাকবে না। একটু পরে আবার লিংক বানাও, বা PNG/ভিডিও ডাউনলোড করে পাঠাও।',
         waText: '🎂 তোমার জন্য একটা জন্মদিনের সারপ্রাইজ!', jump: '👁 প্রিভিউ', footer: 'ভালোবাসা দিয়ে বানানো · কোনো লগইন নেই, কোনো সার্ভার নেই',
         cardTitle: 'শুভ জন্মদিন', nameFallback: 'প্রিয় মানুষ', from: 'ভালোবাসায়, {s}', fromColleague: 'শুভেচ্ছান্তে, {s}',
         greetSub: 'আজ তোমার দিন', photoCap: 'মুহূর্তগুলো চিরকাল থাকুক', cakeCap: 'একটা কেক, শুধু তোমার জন্য!', forYou: 'তোমার জন্য কিছু কথা',
@@ -2966,7 +2967,8 @@
         preview: 'Live preview', dlPng: '⬇️ Download PNG', replay: '▶️ Replay', record: '⏺️ Record & download video', tryS: '🎁 Preview surprise',
         share: 'Share', makeLink: '🔗 Create share link',
         copy: '📋 Copy', copied: 'Link copied!', more: 'More…', openLink: '👀 Open',
-        shareNote: 'All the data lives inside the link, with no server. The photo is not included in the link — to share the photo, download the PNG or video and send that.',
+        shareNote: 'Your card and photo are saved and the link stays one line long. Anyone who has the link can see the card and the photo.',
+        photoWarn: "The photo couldn't be added to the link right now, so this link has no photo. Try creating the link again in a moment, or download the PNG/video and send that.",
         waText: '🎂 A birthday surprise for you!', jump: '👁 Preview', footer: 'Made with love · no login, no server',
         cardTitle: 'Happy Birthday', nameFallback: 'Someone special', from: 'With love, {s}', fromColleague: 'Best wishes, {s}',
         greetSub: "It's your day", photoCap: 'Moments to keep forever', cakeCap: 'A cake, just for you!', forYou: 'A few words for you',
@@ -3265,6 +3267,7 @@
     };
     let photoData = null;   // full photo (data URL) for card + video
     let photoImg = null;    // Image object for canvas drawing
+    let photoLink = null;   // smaller copy (base64url JPEG) stored with the short link
     let player = null;      // builder animation player
     let recording = false;
 
@@ -4402,13 +4405,14 @@
       try {
         const im = await loadImageFile(file);
         photoData = downscale(im, 1280, .86);
+        photoLink = downscale(im, 900, .78).split(',')[1].replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         photoImg = new Image(); photoImg.src = photoData;
         $('#photoThumb').style.backgroundImage = `url("${photoData}")`; $('#photoThumb').hidden = false; $('#removePhoto').hidden = false;
         render();
       } catch (err) { toast(tt('photoFail')); }
     }
     function removePhoto() {
-      photoData = photoImg = null;
+      photoData = photoLink = photoImg = null;
       $('#photoThumb').hidden = true; $('#removePhoto').hidden = true;
       render();
     }
@@ -4531,23 +4535,25 @@
     }
     // Short links: the card is stored by our Cloudflare Worker (worker/worker.js) and the link carries only ?c=<id>
     const SHORT_API = 'https://card-api.itzsandippal.com';
-    const shortIds = {};   // packed card -> short id (null = shortening failed, use the long ?w= link)
+    const shortIds = {};   // stored text -> short id (null = shortening failed, use the long ?w= link)
     let shortTimer = null;
+    // what the Worker stores: the packed card, plus "#" + the photo when there is one
+    const shareKey = () => packState(state) + (photoLink ? '#' + photoLink : '');
     async function shorten() {
-      const w = packState(state);
-      if (w in shortIds) return;
+      const key = shareKey();
+      if (key in shortIds) return;
       try {
-        const r = await fetch(SHORT_API + '/new', { method: 'POST', body: w, signal: AbortSignal.timeout(6000) });
-        shortIds[w] = r.ok ? (await r.json()).id : null;
-      } catch (e) { shortIds[w] = null; } // offline or Worker down: the long link still works
+        const r = await fetch(SHORT_API + '/new', { method: 'POST', body: key, signal: AbortSignal.timeout(photoLink ? 25000 : 6000) });
+        shortIds[key] = r.ok ? (await r.json()).id : null;
+      } catch (e) { shortIds[key] = null; } // offline or Worker down: the long link still works (without the photo)
     }
     function buildShareLink() {
       const base = location.href.split(/[?#]/)[0].replace(/index\.html$/, '');
-      const w = packState(state);
-      return base + (shortIds[w] ? '?c=' + shortIds[w] : '?w=' + w); // photo (#p=) is no longer put in new links
+      const id = shortIds[shareKey()];
+      return base + (id ? '?c=' + id : '?w=' + packState(state)); // the photo only travels with the short link
     }
     function refreshShare() {
-      if (!(packState(state) in shortIds)) { // card changed since the last link: get a new short id
+      if (!(shareKey() in shortIds)) { // card or photo changed since the last link: get a new short id
         clearTimeout(shortTimer);
         shortTimer = setTimeout(() => shorten().then(() => { if (!$('#shareOut').hidden) refreshShare(); }), 700);
       }
@@ -4559,7 +4565,7 @@
       const warns = [];
       if (location.protocol === 'file:') warns.push(tt('fileWarn'));
       if (state.music === 'custom') warns.push(tt(modeKey('customWarn')));
-      if (url.length > 8000) warns.push(tt('longWarn'));
+      if (photoLink && shortIds[shareKey()] === null) warns.push(tt('photoWarn'));
       $('#shareWarn').textContent = warns.join(' '); $('#shareWarn').hidden = !warns.length;
       return url;
     }
@@ -4583,7 +4589,7 @@
     /* =====================================================================
        JS PART 12 — SHARE VIEWER (output only, fullscreen)
        ===================================================================== */
-    function startViewer(data) {
+    function startViewer(data, photo = null) {
       document.documentElement.classList.add('share-mode');
       document.body.classList.remove('lock');
       $('#intro').hidden = true; $('#app').hidden = true;
@@ -4593,8 +4599,8 @@
         $('#viewerStage').classList.add('show'); return;
       }
       Object.assign(state, data);
-      const m = location.hash.match(/[#&]p=([A-Za-z0-9_-]+)/);
-      if (m) { photoData = 'data:image/jpeg;base64,' + b64urlToB64(m[1]); photoImg = new Image(); photoImg.src = photoData; }
+      const m = location.hash.match(/[#&]p=([A-Za-z0-9_-]+)/); // old links carried the photo after #p=
+      if (photo || m) { photoData = 'data:image/jpeg;base64,' + b64urlToB64(photo || m[1]); photoImg = new Image(); photoImg.src = photoData; }
       document.documentElement.lang = state.lang;
       document.title = cardTitle(state) + (showName(state) ? ', ' + displayName(state) : '') + '!';
       const p = THEMES[state.theme];
@@ -4705,7 +4711,8 @@
       const q = new URLSearchParams(location.search), w = q.get('w'), c = q.get('c');
       if (w !== null) startViewer(unpack(w));
       else if (c !== null) fetch(SHORT_API + '/c/' + encodeURIComponent(c))
-        .then(r => r.ok ? r.text() : null).then(t => startViewer(t && unpack(t)), () => startViewer(null));
+        .then(r => r.ok ? r.text() : null)
+        .then(t => { const [card, photo] = (t || '').split('#'); startViewer(card && unpack(card), photo || null); }, () => startViewer(null));
       else startBuilder();
     })();
   </script>
